@@ -2,11 +2,19 @@
 
 import Image from 'next/image';
 import { useState } from 'react';
+import { FaWhatsapp } from 'react-icons/fa';
+import { SiSpotify, SiYoutube } from 'react-icons/si';
 
 import styles from './PodcastHeader.module.css';
 
 const spotifyUrl =
   'https://open.spotify.com/show/4MlsSTgEjZAUKhd9SsQ5tp';
+
+const youtubeUrl =
+  'https://www.youtube.com/watch?v=Vns4Tet_GgI&list=PLK_VJTpEYo6XJkBQGDYTlYJr3IeUUROqk';
+
+const whatsappUrl =
+  'https://wa.me/51971069763?text=Hola%20Tercer%20Espacio%2C%20quiero%20más%20información.';
 
 export default function PodcastHeader() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -51,57 +59,101 @@ export default function PodcastHeader() {
           className={styles.desktopNav}
           aria-label="Navegación principal"
         >
-          <a href="#episodios">
+          <a
+            href="#episodios"
+            onClick={closeMenu}
+          >
             Episodios
-          </a>
-
-          <a href="#podcast">
-            Sobre el podcast
-          </a>
-
-          <a href="#temas">
-            Temas
           </a>
         </nav>
 
-        {/* PLATAFORMA */}
+        {/* ACCIONES DESKTOP */}
 
-        <div className={styles.platforms}>
-          <span className={styles.listenLabel}>
-            Escúchanos
-          </span>
+        <div className={styles.actions}>
+
+          {/* SPOTIFY */}
 
           <a
             href={spotifyUrl}
             target="_blank"
             rel="noopener noreferrer"
             className={styles.platform}
-            aria-label="Escuchar Tercer Espacio en Spotify"
+            aria-label="Escuchar en Spotify"
+            title="Spotify"
           >
-            <span>SP</span>
+            <SiSpotify aria-hidden="true" />
           </a>
+
+          {/* YOUTUBE */}
+
+          <a
+            href={youtubeUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={styles.platform}
+            aria-label="Ver en YouTube"
+            title="YouTube"
+          >
+            <SiYoutube aria-hidden="true" />
+          </a>
+
+          {/* WHATSAPP DESKTOP */}
+
+          <a
+            href={whatsappUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={styles.contactButton}
+            aria-label="Contáctanos por WhatsApp"
+          >
+            <FaWhatsapp aria-hidden="true" />
+
+            <span>
+              Contáctanos
+            </span>
+          </a>
+
         </div>
 
-        {/* MENU MOBILE */}
+        {/* ACCIONES MOBILE */}
 
-        <button
-          type="button"
-          className={`${styles.menuButton} ${
-            menuOpen
-              ? styles.menuOpen
-              : ''
-          }`}
-          onClick={toggleMenu}
-          aria-label={
-            menuOpen
-              ? 'Cerrar menú'
-              : 'Abrir menú'
-          }
-          aria-expanded={menuOpen}
-        >
-          <span />
-          <span />
-        </button>
+        <div className={styles.mobileActions}>
+
+          {/* WHATSAPP SOLO ICONO */}
+
+          <a
+            href={whatsappUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={styles.mobileWhatsapp}
+            aria-label="Contáctanos por WhatsApp"
+            title="WhatsApp"
+          >
+            <FaWhatsapp aria-hidden="true" />
+          </a>
+
+          {/* MENU */}
+
+          <button
+            type="button"
+            className={`${styles.menuButton} ${
+              menuOpen
+                ? styles.menuOpen
+                : ''
+            }`}
+            onClick={toggleMenu}
+            aria-label={
+              menuOpen
+                ? 'Cerrar menú'
+                : 'Abrir menú'
+            }
+            aria-expanded={menuOpen}
+          >
+            <span />
+            <span />
+          </button>
+
+        </div>
       </div>
 
       {/* MENU MOBILE */}
@@ -132,34 +184,10 @@ export default function PodcastHeader() {
           </a>
 
           <a
-            href="#podcast"
-            onClick={closeMenu}
-          >
-            Sobre el podcast
-          </a>
-
-          <a
-            href="#temas"
-            onClick={closeMenu}
-          >
-            Temas
-          </a>
-
-          <a
             href="#escuchar"
             onClick={closeMenu}
           >
             Escuchar
-          </a>
-
-          <a
-            href={spotifyUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={closeMenu}
-            className={styles.mobileSpotify}
-          >
-            Escuchar en Spotify
           </a>
         </nav>
       </div>

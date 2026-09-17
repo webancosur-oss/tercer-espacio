@@ -1,7 +1,7 @@
 import Parser from 'rss-parser';
-import { FiArrowUpRight } from 'react-icons/fi';
 
 import styles from './EpisodeList.module.css';
+import EpisodeCarousel from './EpisodeCarousel';
 
 type PodcastItem = {
   title?: string;
@@ -18,14 +18,15 @@ type PodcastItem = {
     length?: string;
   };
 
-  'itunes:duration'?: string;
-  'itunes:episode'?: string;
-  'itunes:season'?: string;
-  'itunes:episodeType'?: string;
-
   'itunes:image'?: {
     href?: string;
   };
+
+  'itunes:duration'?: string;
+
+  'itunes:episode'?: string;
+
+  'itunes:season'?: string;
 };
 
 type PodcastFeed = {
@@ -34,8 +35,6 @@ type PodcastFeed = {
 
   image?: {
     url?: string;
-    title?: string;
-    link?: string;
   };
 
   items: PodcastItem[];
@@ -43,9 +42,6 @@ type PodcastFeed = {
 
 const RSS_URL =
   process.env.PODCAST_RSS_URL;
-
-const SPOTIFY_SHOW_URL =
-  'https://open.spotify.com/show/4MlsSTgEjZAUKhd9SsQ5tp';
 
 const parser =
   new Parser<PodcastFeed>({
@@ -67,10 +63,6 @@ const parser =
           'itunes:season',
           'itunes:season',
         ],
-        [
-          'itunes:episodeType',
-          'itunes:episodeType',
-        ],
       ],
     },
   });
@@ -79,128 +71,68 @@ const parser =
    LIMPIAR URL
 ========================================================= */
 
-function cleanImageUrl(
+function cleanUrl(
   value?: string | null,
 ) {
   if (!value) {
     return null;
   }
 
-  let url = value.trim();
+  let url =
+    value.trim();
 
   if (!url) {
     return null;
   }
 
-  /*
-   * Convierte URLs como:
-   *
-   * //example.com/image.jpg
-   *
-   * en:
-   *
-   * https://example.com/image.jpg
-   */
-
-  if (url.startsWith('//')) {
-    url = `https:${url}`;
+  if (
+    url.startsWith('//')
+  ) {
+    url =
+      `https:${url}`;
   }
 
-  /*
-   * Decodificar entidades HTML.
-   */
-
-  url = url
-    .replace(/&amp;/g, '&')
-    .replace(/&quot;/g, '"')
-    .replace(/&#39;/g, "'");
-
-  return url;
+  return url
+    .replace(
+      /&amp;/g,
+      '&',
+    )
+    .replace(
+      /&quot;/g,
+      '"',
+    )
+    .replace(
+      /&#39;/g,
+      "'",
+    );
 }
 
 /* =========================================================
    EXTRAER IMAGEN DEL XML
 ========================================================= */
 
-function extractImageFromXml(
+function extractPodcastImage(
   xml: string,
 ) {
   /*
-   * 1. iTunes image
-   *
-   * <itunes:image href="..." />
+   * itunes:image
    */
 
-  const itunesMatches = [
-    /<itunes:image\b[^>]*\bhref=["']([^"']+)["'][^>]*\/?>/i,
-
-    /<itunes:image\b[^>]*\burl=["']([^"']+)["'][^>]*\/?>/i,
-
-    /<itunes:image\b[^>]*>([^<]+)<\/itunes:image>/i,
-  ];
-
-  for (const regex of itunesMatches) {
-    const match =
-      xml.match(regex);
-
-    if (match?.[1]) {
-      const url =
-        cleanImageUrl(
-          match[1],
-        );
-
-      if (url) {
-        return url;
-      }
-    }
-  }
-
-  /*
-   * 2. media:content
-   */
-
-  const mediaContent =
+  const itunesImage =
     xml.match(
-      /<media:content\b[^>]*\burl=["']([^"']+)["'][^>]*\/?>/i,
+      /<itunes:image\b[^>]*\bhref=["']([^"']+)["'][^>]*\/?>/i,
     );
 
-  if (mediaContent?.[1]) {
-    const url =
-      cleanImageUrl(
-        mediaContent[1],
-      );
-
-    if (url) {
-      return url;
-    }
-  }
-
-  /*
-   * 3. media:thumbnail
-   */
-
-  const mediaThumbnail =
-    xml.match(
-      /<media:thumbnail\b[^>]*\burl=["']([^"']+)["'][^>]*\/?>/i,
+  if (
+    itunesImage?.[1]
+  ) {
+    return cleanUrl(
+      itunesImage[1],
     );
-
-  if (mediaThumbnail?.[1]) {
-    const url =
-      cleanImageUrl(
-        mediaThumbnail[1],
-      );
-
-    if (url) {
-      return url;
-    }
   }
 
   /*
-   * 4. RSS image tradicional
-   *
-   * <image>
-   *   <url>...</url>
-   * </image>
+   * RSS image
    */
 
   const rssImage =
@@ -208,69 +140,28 @@ function extractImageFromXml(
       /<image\b[^>]*>[\s\S]*?<url>\s*([^<]+)\s*<\/url>[\s\S]*?<\/image>/i,
     );
 
-  if (rssImage?.[1]) {
-    const url =
-      cleanImageUrl(
-        rssImage[1],
-      );
-
-    if (url) {
-      return url;
-    }
-  }
-
-  return null;
-}
-
-/* =========================================================
-   EXTRAER IMAGEN DE UN ITEM
-========================================================= */
-
-function extractEpisodeImage(
-  itemXml: string,
-) {
-  /*
-   * iTunes
-   */
-
-  const itunes =
-    itemXml.match(
-      /<itunes:image\b[^>]*\bhref=["']([^"']+)["'][^>]*\/?>/i,
-    );
-
-  if (itunes?.[1]) {
-    return cleanImageUrl(
-      itunes[1],
+  if (
+    rssImage?.[1]
+  ) {
+    return cleanUrl(
+      rssImage[1],
     );
   }
 
   /*
-   * Media content
+   * media:content
    */
 
-  const media =
-    itemXml.match(
+  const mediaContent =
+    xml.match(
       /<media:content\b[^>]*\burl=["']([^"']+)["'][^>]*\/?>/i,
     );
 
-  if (media?.[1]) {
-    return cleanImageUrl(
-      media[1],
-    );
-  }
-
-  /*
-   * Media thumbnail
-   */
-
-  const thumbnail =
-    itemXml.match(
-      /<media:thumbnail\b[^>]*\burl=["']([^"']+)["'][^>]*\/?>/i,
-    );
-
-  if (thumbnail?.[1]) {
-    return cleanImageUrl(
-      thumbnail[1],
+  if (
+    mediaContent?.[1]
+  ) {
+    return cleanUrl(
+      mediaContent[1],
     );
   }
 
@@ -278,10 +169,68 @@ function extractEpisodeImage(
 }
 
 /* =========================================================
-   OBTENER RSS
+   OBTENER IMAGEN DE EPISODIO
 ========================================================= */
 
-async function getPodcastData() {
+function extractEpisodeImages(
+  xml: string,
+) {
+  const itemXml =
+    xml.match(
+      /<item\b[\s\S]*?<\/item>/gi,
+    ) ?? [];
+
+  return itemXml.map(
+    (item) => {
+      const image =
+        item.match(
+          /<itunes:image\b[^>]*\bhref=["']([^"']+)["'][^>]*\/?>/i,
+        );
+
+      if (
+        image?.[1]
+      ) {
+        return cleanUrl(
+          image[1],
+        );
+      }
+
+      const media =
+        item.match(
+          /<media:content\b[^>]*\burl=["']([^"']+)["'][^>]*\/?>/i,
+        );
+
+      if (
+        media?.[1]
+      ) {
+        return cleanUrl(
+          media[1],
+        );
+      }
+
+      const thumbnail =
+        item.match(
+          /<media:thumbnail\b[^>]*\burl=["']([^"']+)["'][^>]*\/?>/i,
+        );
+
+      if (
+        thumbnail?.[1]
+      ) {
+        return cleanUrl(
+          thumbnail[1],
+        );
+      }
+
+      return null;
+    },
+  );
+}
+
+/* =========================================================
+   OBTENER PODCAST
+========================================================= */
+
+async function getPodcast() {
   if (!RSS_URL) {
     throw new Error(
       'FALTA PODCAST_RSS_URL EN .env.local',
@@ -323,32 +272,14 @@ async function getPodcastData() {
       xml,
     );
 
-  /*
-   * Imagen general del podcast
-   */
-
   const podcastImage =
-    extractImageFromXml(
+    extractPodcastImage(
       xml,
     );
 
-  /*
-   * Extraemos cada <item>
-   * del XML original para buscar
-   * su imagen específica.
-   */
-
-  const itemMatches =
-    xml.match(
-      /<item\b[\s\S]*?<\/item>/gi,
-    ) ?? [];
-
   const episodeImages =
-    itemMatches.map(
-      (itemXml) =>
-        extractEpisodeImage(
-          itemXml,
-        ),
+    extractEpisodeImages(
+      xml,
     );
 
   return {
@@ -356,195 +287,6 @@ async function getPodcastData() {
     podcastImage,
     episodeImages,
   };
-}
-
-/* =========================================================
-   DURACIÓN
-========================================================= */
-
-function formatDuration(
-  duration?: string,
-) {
-  if (!duration) {
-    return null;
-  }
-
-  const value =
-    duration.trim();
-
-  if (
-    value.includes(':')
-  ) {
-    const parts =
-      value
-        .split(':')
-        .map(Number);
-
-    if (
-      parts.length === 3
-    ) {
-      const [
-        hours,
-        minutes,
-      ] = parts;
-
-      if (hours > 0) {
-        return `${hours} h ${String(
-          minutes,
-        ).padStart(
-          2,
-          '0',
-        )} min`;
-      }
-
-      return `${minutes} min`;
-    }
-
-    if (
-      parts.length === 2
-    ) {
-      const [
-        minutes,
-      ] = parts;
-
-      return `${minutes} min`;
-    }
-  }
-
-  const seconds =
-    Number(value);
-
-  if (
-    !Number.isNaN(
-      seconds,
-    )
-  ) {
-    const totalMinutes =
-      Math.floor(
-        seconds / 60,
-      );
-
-    const hours =
-      Math.floor(
-        totalMinutes / 60,
-      );
-
-    const minutes =
-      totalMinutes % 60;
-
-    if (hours > 0) {
-      return `${hours} h ${String(
-        minutes,
-      ).padStart(
-        2,
-        '0',
-      )} min`;
-    }
-
-    return `${minutes} min`;
-  }
-
-  return value;
-}
-
-/* =========================================================
-   FECHA
-========================================================= */
-
-function formatDate(
-  date?: string,
-) {
-  if (!date) {
-    return '';
-  }
-
-  const parsedDate =
-    new Date(date);
-
-  if (
-    Number.isNaN(
-      parsedDate.getTime(),
-    )
-  ) {
-    return date;
-  }
-
-  return new Intl.DateTimeFormat(
-    'es-PE',
-    {
-      day: '2-digit',
-      month: 'short',
-      year: 'numeric',
-    },
-  )
-    .format(parsedDate)
-    .replace(
-      '.',
-      '',
-    )
-    .toUpperCase();
-}
-
-/* =========================================================
-   CATEGORÍA
-========================================================= */
-
-function getCategory(
-  episode: PodcastItem,
-) {
-  const text =
-    `${episode.title ?? ''} ${
-      episode.description ?? ''
-    }`
-      .toLowerCase()
-      .normalize('NFD')
-      .replace(
-        /[\u0300-\u036f]/g,
-        '',
-      );
-
-  if (
-    text.includes('inversion') ||
-    text.includes('invertir') ||
-    text.includes('propiedad') ||
-    text.includes('inmobili')
-  ) {
-    return 'INVERSIÓN';
-  }
-
-  if (
-    text.includes('arquitectura') ||
-    text.includes('arquitecto') ||
-    text.includes('diseno')
-  ) {
-    return 'ARQUITECTURA';
-  }
-
-  if (
-    text.includes('ciudad') ||
-    text.includes('urbano') ||
-    text.includes('urbanismo')
-  ) {
-    return 'CIUDAD';
-  }
-
-  if (
-    text.includes('negocio') ||
-    text.includes('empresa') ||
-    text.includes('empresarial') ||
-    text.includes('emprend')
-  ) {
-    return 'NEGOCIOS';
-  }
-
-  if (
-    text.includes('construccion') ||
-    text.includes('construir')
-  ) {
-    return 'CONSTRUCCIÓN';
-  }
-
-  return 'TERCER ESPACIO';
 }
 
 /* =========================================================
@@ -583,15 +325,71 @@ function cleanDescription(
 }
 
 /* =========================================================
-   URL EPISODIO
+   PREPARAR EPISODIOS
 ========================================================= */
 
-function getEpisodeUrl(
-  episode: PodcastItem,
+function prepareEpisodes(
+  feed: PodcastFeed,
+  podcastImage: string | null,
+  episodeImages: (
+    | string
+    | null
+  )[],
 ) {
-  return (
-    episode.link ??
-    SPOTIFY_SHOW_URL
+  return feed.items.map(
+    (
+      episode,
+      index,
+    ) => {
+      const episodeImage =
+        episodeImages[index];
+
+      const image =
+        episodeImage ??
+        podcastImage ??
+        null;
+
+      return {
+        id:
+          episode.guid ??
+          `${episode.title}-${index}`,
+
+        title:
+          episode.title ??
+          'Episodio sin título',
+
+        description:
+          cleanDescription(
+            episode.description ??
+              episode.content,
+          ),
+
+        date:
+          episode.isoDate ??
+          episode.pubDate ??
+          '',
+
+        duration:
+          episode[
+            'itunes:duration'
+          ] ?? '',
+
+        episodeNumber:
+          episode[
+            'itunes:episode'
+          ] ??
+          String(
+            feed.items.length -
+              index,
+          ),
+
+        image,
+
+        url:
+          episode.link ??
+          'https://open.spotify.com/show/4MlsSTgEjZAUKhd9SsQ5tp',
+      };
+    },
   );
 }
 
@@ -605,10 +403,22 @@ export default async function EpisodeList() {
     podcastImage,
     episodeImages,
   } =
-    await getPodcastData();
+    await getPodcast();
 
   const episodes =
-    feed.items ?? [];
+    prepareEpisodes(
+      feed,
+      podcastImage,
+      episodeImages,
+    );
+
+  /*
+   * El podcast actualmente tiene
+   * 5 episodios.
+   *
+   * Si posteriormente agregas más,
+   * el carrusel también funcionará.
+   */
 
   return (
     <section
@@ -658,226 +468,12 @@ export default async function EpisodeList() {
           </p>
         </div>
 
-        {/* GRID */}
-
         {episodes.length > 0 ? (
-          <div
-            className={
-              styles.grid
+          <EpisodeCarousel
+            episodes={
+              episodes
             }
-          >
-            {episodes.map(
-              (
-                episode,
-                index,
-              ) => {
-                const title =
-                  episode.title ??
-                  'Episodio sin título';
-
-                const description =
-                  cleanDescription(
-                    episode.description ??
-                      episode.content,
-                  );
-
-                /*
-                 * Imagen específica del episodio.
-                 *
-                 * Si no existe, usamos
-                 * la portada general.
-                 */
-
-                const image =
-                  episodeImages[index] ??
-                  podcastImage;
-
-                const episodeUrl =
-                  getEpisodeUrl(
-                    episode,
-                  );
-
-                const duration =
-                  formatDuration(
-                    episode[
-                      'itunes:duration'
-                    ],
-                  );
-
-                const date =
-                  formatDate(
-                    episode.isoDate ??
-                      episode.pubDate,
-                  );
-
-                const episodeNumber =
-                  episode[
-                    'itunes:episode'
-                  ] ??
-                  String(
-                    episodes.length -
-                      index,
-                  ).padStart(
-                    2,
-                    '0',
-                  );
-
-                return (
-                  <article
-                    key={
-                      episode.guid ??
-                      `${title}-${index}`
-                    }
-                    className={
-                      styles.card
-                    }
-                  >
-
-                    {/* COVER */}
-
-                    <a
-                      href={
-                        episodeUrl
-                      }
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className={
-                        styles.cover
-                      }
-                      aria-label={`Escuchar ${title}`}
-                    >
-                      {image ? (
-                        <img
-                          src={image}
-                          alt={title}
-                          className={
-                            styles.coverImage
-                          }
-                          loading={
-                            index < 3
-                              ? 'eager'
-                              : 'lazy'
-                          }
-                          referrerPolicy="no-referrer"
-                        />
-                      ) : (
-                        <div
-                          className={
-                            styles.coverFallback
-                          }
-                        >
-                          <span>
-                            TERCER
-                          </span>
-
-                          <strong>
-                            ESPACIO
-                          </strong>
-                        </div>
-                      )}
-
-                      <div
-                        className={
-                          styles.coverOverlay
-                        }
-                      />
-
-                      <span
-                        className={
-                          styles.coverLabel
-                        }
-                      >
-                        EP.{' '}
-                        {String(
-                          episodeNumber,
-                        ).padStart(
-                          2,
-                          '0',
-                        )}
-                      </span>
-
-                      <span
-                        className={
-                          styles.coverPlay
-                        }
-                        aria-hidden="true"
-                      >
-                        <FiArrowUpRight />
-                      </span>
-                    </a>
-
-                    {/* CONTENT */}
-
-                    <div
-                      className={
-                        styles.cardContent
-                      }
-                    >
-                      <div
-                        className={
-                          styles.meta
-                        }
-                      >
-                        <span>
-                          {date}
-                        </span>
-
-                        {duration && (
-                          <span>
-                            {duration}
-                          </span>
-                        )}
-                      </div>
-
-                      <span
-                        className={
-                          styles.category
-                        }
-                      >
-                        {getCategory(
-                          episode,
-                        )}
-                      </span>
-
-                      <h3>
-                        {title}
-                      </h3>
-
-                      {description && (
-                        <p>
-                          {
-                            description
-                          }
-                        </p>
-                      )}
-
-                      <a
-                        href={
-                          episodeUrl
-                        }
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className={
-                          styles.listen
-                        }
-                      >
-                        <span>
-                          Escuchar episodio
-                        </span>
-
-                        <FiArrowUpRight
-                          className={
-                            styles.listenIcon
-                          }
-                          aria-hidden="true"
-                        />
-                      </a>
-                    </div>
-                  </article>
-                );
-              },
-            )}
-          </div>
+          />
         ) : (
           <div
             className={
@@ -898,6 +494,7 @@ export default async function EpisodeList() {
             </p>
           </div>
         )}
+
       </div>
     </section>
   );

@@ -1,122 +1,178 @@
 import Image from 'next/image';
+import { FiArrowUpRight } from 'react-icons/fi';
+import { SiSpotify, SiYoutube } from 'react-icons/si';
 
 import styles from './PodcastHero.module.css';
 
+const spotifyUrl =
+  'https://open.spotify.com/show/4MlsSTgEjZAUKhd9SsQ5tp';
+
+const youtubeUrl =
+  'https://www.youtube.com/watch?v=Vns4Tet_GgI&list=PLK_VJTpEYo6XJkBQGDYTlYJr3IeUUROqk';
+
 export default function PodcastHero() {
   return (
-    <section
-      id="inicio"
-      className={styles.hero}
-    >
-      {/* =================================================
-          BACKGROUND
-      ================================================= */}
+    <section id="inicio" className={styles.hero}>
+      {/* Decoración de fondo */}
+      <div
+        className={styles.backgroundGlow}
+        aria-hidden="true"
+      />
 
-      <div className={styles.pattern} />
+      <div
+        className={styles.backgroundRing}
+        aria-hidden="true"
+      />
 
-      <div className={styles.glow} />
+      <div
+        className={styles.backgroundRingInner}
+        aria-hidden="true"
+      />
 
-      {/* =================================================
-          HERO CONTENT
-      ================================================= */}
+      <div
+        className={styles.backgroundArc}
+        aria-hidden="true"
+      />
+
+      <span
+        className={styles.decorativeDot}
+        aria-hidden="true"
+      />
+
+      <span
+        className={styles.decorativeDotSmall}
+        aria-hidden="true"
+      />
 
       <div className={styles.content}>
 
-        <h1>
-          Conversaciones que
-          <br />
-          <span>construyen.</span>
-        </h1>
+        {/* TELEFONO */}
+        <div className={styles.visual}>
+          <div
+            className={styles.phoneDecoration}
+            aria-hidden="true"
+          />
 
-      </div>
+          <div
+            className={styles.phoneShadow}
+            aria-hidden="true"
+          />
 
-      {/* =================================================
-          SKYLINE
-          Queda detrás del teléfono
-      ================================================= */}
+          <div className={styles.phone}>
 
-      <div className={styles.skyline}>
-
-        <div className={`${styles.building} ${styles.b1}`} />
-        <div className={`${styles.building} ${styles.b2}`} />
-        <div className={`${styles.building} ${styles.b3}`} />
-        <div className={`${styles.building} ${styles.b4}`} />
-        <div className={`${styles.building} ${styles.b5}`} />
-        <div className={`${styles.building} ${styles.b6}`} />
-        <div className={`${styles.building} ${styles.b7}`} />
-        <div className={`${styles.building} ${styles.b8}`} />
-        <div className={`${styles.building} ${styles.b9}`} />
-        <div className={`${styles.building} ${styles.b10}`} />
-        <div className={`${styles.building} ${styles.b11}`} />
-        <div className={`${styles.building} ${styles.b12}`} />
-        <div className={`${styles.building} ${styles.b13}`} />
-        <div className={`${styles.building} ${styles.b14}`} />
-        <div className={`${styles.building} ${styles.b15}`} />
-        <div className={`${styles.building} ${styles.b16}`} />
-
-      </div>
-
-      {/* =================================================
-          WHITE BOTTOM AREA
-      ================================================= */}
-
-      <div className={styles.lightArea} />
-
-      {/* =================================================
-          IPHONE
-          Queda por encima del skyline y de la zona blanca
-      ================================================= */}
-
-      <div className={styles.phoneStage}>
-
-        <div className={styles.phone}>
-
-          {/* Physical buttons */}
-
-          <span className={styles.volumeOne} />
-          <span className={styles.volumeTwo} />
-          <span className={styles.volumeThree} />
-
-          <span className={styles.powerButton} />
-
-          {/* Phone display */}
-
-          <div className={styles.phoneScreen}>
-
-            <Image
-              src="/images/podcast/hero/podcast-mobile.png"
-              alt="Tercer Espacio Podcast"
-              width={260}
-              height={560}
-              priority
-              className={styles.screenImage}
-              sizes="
-                (max-width: 340px) 145px,
-                (max-width: 400px) 165px,
-                (max-width: 700px) 185px,
-                (max-width: 950px) 215px,
-                260px
-              "
+            {/* Botones laterales */}
+            <span
+              className={styles.volumeOne}
+              aria-hidden="true"
             />
 
-          </div>
+            <span
+              className={styles.volumeTwo}
+              aria-hidden="true"
+            />
 
+            <span
+              className={styles.volumeThree}
+              aria-hidden="true"
+            />
+
+            <span
+              className={styles.powerButton}
+              aria-hidden="true"
+            />
+
+            <div className={styles.phoneFrame}>
+              <div className={styles.screen}>
+                <Image
+                  src="/images/podcast/hero/podcast-mobile.png"
+                  alt="Tercer Espacio Podcast"
+                  fill
+                  priority
+                  className={styles.screenImage}
+                  sizes="
+                    (max-width: 340px) 185px,
+                    (max-width: 420px) 205px,
+                    (max-width: 760px) 220px,
+                    (max-width: 1100px) 300px,
+                    365px
+                  "
+                />
+              </div>
+            </div>
+          </div>
         </div>
 
+        {/* TEXTO */}
+        <div className={styles.copy}>
+
+          <span className={styles.eyebrow}>
+            PODCAST · INMOBILIARIA · CIUDAD
+          </span>
+
+          <h1>
+            Conversaciones
+            <br />
+            que
+            <em>construyen.</em>
+          </h1>
+
+          <p className={styles.description}>
+            Historias, ideas y decisiones detrás
+            del mundo inmobiliario, la arquitectura
+            y las ciudades que estamos creando.
+          </p>
+
+          <div className={styles.platforms}>
+
+            <a
+              href={spotifyUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={styles.platformButton}
+            >
+              <span
+                className={`${styles.platformIcon} ${styles.spotifyIcon}`}
+                aria-hidden="true"
+              >
+                <SiSpotify />
+              </span>
+
+              <span>
+                Escuchar en Spotify
+              </span>
+
+              <FiArrowUpRight
+                className={styles.buttonArrow}
+                aria-hidden="true"
+              />
+            </a>
+
+            <a
+              href={youtubeUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={styles.platformButton}
+            >
+              <span
+                className={`${styles.platformIcon} ${styles.youtubeIcon}`}
+                aria-hidden="true"
+              >
+                <SiYoutube />
+              </span>
+
+              <span>
+                Ver en YouTube
+              </span>
+
+              <FiArrowUpRight
+                className={styles.buttonArrow}
+                aria-hidden="true"
+              />
+            </a>
+
+          </div>
+        </div>
       </div>
-
-      {/* =================================================
-          SCROLL
-      ================================================= */}
-
-      <div className={styles.scroll}>
-
-        <span>SCROLL</span>
-
-        <i />
-
-      </div>
-
     </section>
   );
 }

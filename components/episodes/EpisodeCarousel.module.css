@@ -1,0 +1,1162 @@
+.carousel {
+  position: relative;
+  width: 100%;
+  min-width: 0;
+}
+
+/* =========================================================
+   CONTROLES
+========================================================= */
+
+.controls {
+  width: 100%;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  margin-bottom: 28px;
+}
+
+.counter {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+
+  color: #073f3d;
+
+  font-family:
+    Georgia,
+    'Times New Roman',
+    serif;
+
+  font-size: 17px;
+  line-height: 1;
+}
+
+.counterDivider {
+  color: rgba(7, 63, 61, 0.35);
+
+  font-family:
+    Arial,
+    Helvetica,
+    sans-serif;
+
+  font-size: 11px;
+}
+
+.arrows {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.arrowButton {
+  width: 42px;
+  height: 42px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 0;
+
+  border: 1px solid rgba(7, 63, 61, 0.16);
+
+  border-radius: 50%;
+
+  background: transparent;
+
+  color: #073f3d;
+
+  cursor: pointer;
+
+  -webkit-tap-highlight-color: transparent;
+
+  transition:
+    background 0.25s ease,
+    color 0.25s ease,
+    border-color 0.25s ease,
+    transform 0.25s ease;
+}
+
+.arrowButton svg {
+  width: 17px;
+  height: 17px;
+}
+
+.arrowButton:hover {
+  background: #073f3d;
+
+  border-color: #073f3d;
+
+  color: #ffffff;
+
+  transform: translateY(-2px);
+}
+
+.arrowButton:active {
+  transform: scale(0.94);
+}
+
+/* =========================================================
+   VIEWPORT
+========================================================= */
+
+.viewport {
+  position: relative;
+
+  width: 100%;
+
+  overflow: hidden;
+
+  /*
+   * MUY IMPORTANTE PARA MOBILE.
+   *
+   * Permitimos que el navegador
+   * haga scroll vertical normalmente.
+   *
+   * El gesto horizontal se controla
+   * mediante touch events.
+   */
+  touch-action: pan-y pinch-zoom;
+
+  user-select: none;
+
+  -webkit-user-select: none;
+
+  -webkit-tap-highlight-color: transparent;
+
+  cursor: grab;
+}
+
+.viewport.dragging {
+  cursor: grabbing;
+}
+
+/* =========================================================
+   TRACK
+========================================================= */
+
+.track {
+  display: flex;
+
+  align-items: stretch;
+
+  gap: 18px;
+
+  width: max-content;
+
+  will-change: transform;
+
+  /*
+   * Evita que las imágenes o enlaces
+   * intenten arrastrarse como archivos.
+   */
+  -webkit-user-drag: none;
+}
+
+/* =========================================================
+   TARJETA
+========================================================= */
+
+.card {
+  flex: 0 0
+    calc(
+      (
+        100vw - 54px
+      ) / 4
+    );
+
+  width:
+    calc(
+      (
+        100vw - 54px
+      ) / 4
+    );
+
+  max-width: 340px;
+
+  min-width: 0;
+
+  overflow: hidden;
+
+  background: #ffffff;
+
+  box-shadow:
+    0 10px 35px
+      rgba(
+        5,
+        47,
+        46,
+        0.055
+      );
+
+  user-select: none;
+
+  -webkit-user-select: none;
+}
+
+/* =========================================================
+   PORTADA
+========================================================= */
+
+.cover {
+  position: relative;
+
+  display: block;
+
+  width: 100%;
+
+  aspect-ratio: 1 / 1;
+
+  overflow: hidden;
+
+  background: #dfe5e1;
+
+  text-decoration: none;
+
+  -webkit-user-drag: none;
+
+  user-select: none;
+}
+
+.image {
+  position: absolute;
+
+  inset: 0;
+
+  width: 100%;
+  height: 100%;
+
+  display: block;
+
+  object-fit: cover;
+
+  pointer-events: none;
+
+  user-select: none;
+
+  -webkit-user-drag: none;
+
+  transition:
+    transform 0.55s
+      cubic-bezier(
+        0.22,
+        0.61,
+        0.36,
+        1
+      );
+}
+
+.cover:hover .image {
+  transform: scale(1.045);
+}
+
+/* =========================================================
+   FALLBACK
+========================================================= */
+
+.fallback {
+  position: absolute;
+
+  inset: 0;
+
+  display: flex;
+
+  flex-direction: column;
+
+  justify-content: center;
+  align-items: center;
+
+  gap: 3px;
+
+  background: #073f3d;
+
+  color: #ffffff;
+
+  font-family:
+    Arial,
+    Helvetica,
+    sans-serif;
+
+  font-size: 10px;
+
+  font-weight: 700;
+
+  letter-spacing: 0.16em;
+}
+
+.fallback strong {
+  font-family:
+    Georgia,
+    'Times New Roman',
+    serif;
+
+  font-size: 28px;
+
+  letter-spacing: -0.03em;
+}
+
+/* =========================================================
+   OVERLAY
+========================================================= */
+
+.imageOverlay {
+  position: absolute;
+
+  inset: 0;
+
+  background:
+    linear-gradient(
+      180deg,
+      rgba(
+        0,
+        0,
+        0,
+        0.22
+      ) 0%,
+      transparent 35%,
+      rgba(
+        0,
+        0,
+        0,
+        0.3
+      ) 100%
+    );
+
+  pointer-events: none;
+}
+
+/* =========================================================
+   NÚMERO
+========================================================= */
+
+.episodeNumber {
+  position: absolute;
+
+  top: 16px;
+  left: 16px;
+
+  z-index: 2;
+
+  color: #ffffff;
+
+  font-family:
+    Arial,
+    Helvetica,
+    sans-serif;
+
+  font-size: 9px;
+
+  font-weight: 800;
+
+  letter-spacing: 0.12em;
+
+  text-shadow:
+    0 2px 10px
+      rgba(
+        0,
+        0,
+        0,
+        0.2
+      );
+
+  pointer-events: none;
+}
+
+/* =========================================================
+   FLECHA DE PORTADA
+========================================================= */
+
+.imageArrow {
+  position: absolute;
+
+  right: 14px;
+  bottom: 14px;
+
+  z-index: 2;
+
+  width: 34px;
+  height: 34px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border: 1px solid
+    rgba(
+      255,
+      255,
+      255,
+      0.55
+    );
+
+  border-radius: 50%;
+
+  background:
+    rgba(
+      255,
+      255,
+      255,
+      0.12
+    );
+
+  backdrop-filter: blur(8px);
+
+  -webkit-backdrop-filter: blur(8px);
+
+  color: #ffffff;
+
+  pointer-events: none;
+
+  transition:
+    background 0.25s ease,
+    transform 0.25s ease;
+}
+
+.imageArrow svg {
+  width: 15px;
+  height: 15px;
+}
+
+.cover:hover .imageArrow {
+  background: #d8b84c;
+
+  border-color: #d8b84c;
+
+  color: #073f3d;
+
+  transform:
+    translate(
+      2px,
+      -2px
+    );
+}
+
+/* =========================================================
+   CONTENIDO
+========================================================= */
+
+.content {
+  display: flex;
+
+  flex-direction: column;
+
+  min-height: 235px;
+
+  padding: 20px 20px 22px;
+}
+
+/* =========================================================
+   META
+========================================================= */
+
+.meta {
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+  gap: 10px;
+
+  margin-bottom: 14px;
+
+  color: #687779;
+
+  font-family:
+    Arial,
+    Helvetica,
+    sans-serif;
+
+  font-size: 8px;
+
+  font-weight: 700;
+
+  line-height: 1.3;
+
+  letter-spacing: 0.08em;
+
+  text-transform: uppercase;
+}
+
+/* =========================================================
+   CATEGORÍA
+========================================================= */
+
+.category {
+  display: block;
+
+  margin-bottom: 9px;
+
+  color: #d0aa35;
+
+  font-family:
+    Arial,
+    Helvetica,
+    sans-serif;
+
+  font-size: 8px;
+
+  font-weight: 800;
+
+  line-height: 1.3;
+
+  letter-spacing: 0.12em;
+}
+
+/* =========================================================
+   TÍTULO
+========================================================= */
+
+.content h3 {
+  margin: 0;
+
+  color: #073f3d;
+
+  font-family:
+    Georgia,
+    'Times New Roman',
+    serif;
+
+  font-size:
+    clamp(
+      24px,
+      2.1vw,
+      31px
+    );
+
+  font-weight: 400;
+
+  line-height: 1.02;
+
+  letter-spacing: -0.045em;
+}
+
+/* =========================================================
+   ESCUCHAR
+========================================================= */
+
+.listen {
+  display: inline-flex;
+
+  align-items: center;
+
+  gap: 7px;
+
+  width: fit-content;
+
+  margin-top: auto;
+
+  padding-top: 24px;
+
+  color: #073f3d;
+
+  font-family:
+    Arial,
+    Helvetica,
+    sans-serif;
+
+  font-size: 9px;
+
+  font-weight: 800;
+
+  line-height: 1;
+
+  letter-spacing: 0.05em;
+
+  text-decoration: none;
+
+  transition:
+    color 0.25s ease,
+    gap 0.25s ease;
+}
+
+.listen svg {
+  width: 14px;
+  height: 14px;
+
+  transition:
+    transform 0.25s ease;
+}
+
+.listen:hover {
+  color: #b18d20;
+
+  gap: 10px;
+}
+
+.listen:hover svg {
+  transform:
+    translate(
+      2px,
+      -2px
+    );
+}
+
+/* =========================================================
+   SWIPE HINT
+========================================================= */
+
+.swipeHint {
+  display: none;
+
+  align-items: center;
+  justify-content: center;
+
+  gap: 8px;
+
+  margin-top: 18px;
+
+  color: #687779;
+
+  font-family:
+    Arial,
+    Helvetica,
+    sans-serif;
+
+  font-size: 8px;
+
+  font-weight: 700;
+
+  line-height: 1;
+
+  letter-spacing: 0.1em;
+
+  text-transform: uppercase;
+
+  opacity: 0.75;
+}
+
+.swipeHint svg {
+  width: 13px;
+  height: 13px;
+}
+
+/* =========================================================
+   DESKTOP GRANDE
+========================================================= */
+
+@media (min-width: 1400px) {
+  .card {
+    flex-basis:
+      calc(
+        (
+          100vw - 54px
+        ) / 4
+      );
+
+    width:
+      calc(
+        (
+          100vw - 54px
+        ) / 4
+      );
+  }
+
+  .content {
+    min-height: 250px;
+
+    padding:
+      22px
+      22px
+      24px;
+  }
+
+  .content h3 {
+    font-size: 30px;
+  }
+}
+
+/* =========================================================
+   LAPTOP
+========================================================= */
+
+@media (max-width: 1200px) {
+  .card {
+    flex-basis:
+      calc(
+        (
+          100vw - 36px
+        ) / 3
+      );
+
+    width:
+      calc(
+        (
+          100vw - 36px
+        ) / 3
+      );
+
+    max-width: 360px;
+  }
+
+  .content {
+    min-height: 225px;
+
+    padding: 19px;
+  }
+
+  .content h3 {
+    font-size: 27px;
+  }
+}
+
+/* =========================================================
+   TABLET
+========================================================= */
+
+@media (max-width: 900px) {
+  .controls {
+    margin-bottom: 22px;
+  }
+
+  .card {
+    flex-basis:
+      calc(
+        (
+          100vw - 44px
+        ) / 2
+      );
+
+    width:
+      calc(
+        (
+          100vw - 44px
+        ) / 2
+      );
+
+    max-width: none;
+  }
+
+  .content {
+    min-height: 220px;
+
+    padding: 19px;
+  }
+
+  .content h3 {
+    font-size:
+      clamp(
+        26px,
+        4vw,
+        34px
+      );
+  }
+}
+
+/* =========================================================
+   TABLET PEQUEÑA
+========================================================= */
+
+@media (max-width: 700px) {
+  .track {
+    gap: 14px;
+  }
+
+  .card {
+    flex-basis:
+      calc(
+        (
+          100vw - 34px
+        ) / 2
+      );
+
+    width:
+      calc(
+        (
+          100vw - 34px
+        ) / 2
+      );
+  }
+
+  .content {
+    min-height: 205px;
+
+    padding: 17px;
+  }
+
+  .meta {
+    margin-bottom: 11px;
+
+    font-size: 7px;
+  }
+
+  .category {
+    font-size: 7px;
+  }
+
+  .content h3 {
+    font-size: 24px;
+  }
+
+  .listen {
+    padding-top: 20px;
+
+    font-size: 8px;
+  }
+}
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 600px) {
+  .carousel {
+    width: 100%;
+  }
+
+  .controls {
+    margin-bottom: 17px;
+  }
+
+  .counter {
+    font-size: 15px;
+  }
+
+  .arrows {
+    gap: 6px;
+  }
+
+  .arrowButton {
+    width: 38px;
+    height: 38px;
+  }
+
+  .arrowButton svg {
+    width: 15px;
+    height: 15px;
+  }
+
+  /*
+   * UNA SOLA TARJETA.
+   *
+   * Se deja un pequeño espacio
+   * lateral para que el diseño
+   * respire.
+   */
+
+  .track {
+    gap: 12px;
+  }
+
+  .card {
+    flex: 0 0
+      calc(
+        100vw - 30px
+      );
+
+    width:
+      calc(
+        100vw - 30px
+      );
+
+    max-width: none;
+  }
+
+  .cover {
+    aspect-ratio: 1 / 1;
+  }
+
+  .episodeNumber {
+    top: 13px;
+    left: 13px;
+
+    font-size: 8px;
+  }
+
+  .imageArrow {
+    right: 12px;
+    bottom: 12px;
+
+    width: 32px;
+    height: 32px;
+  }
+
+  .imageArrow svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  .content {
+    min-height: 205px;
+
+    padding:
+      18px
+      18px
+      20px;
+  }
+
+  .meta {
+    margin-bottom: 11px;
+
+    font-size: 7.5px;
+  }
+
+  .category {
+    margin-bottom: 8px;
+
+    font-size: 7.5px;
+  }
+
+  .content h3 {
+    font-size:
+      clamp(
+        26px,
+        8vw,
+        34px
+      );
+
+    line-height: 1;
+  }
+
+  .listen {
+    padding-top: 20px;
+
+    font-size: 8.5px;
+  }
+
+  /*
+   * Indicador de swipe.
+   */
+
+  .swipeHint {
+    display: flex;
+  }
+}
+
+/* =========================================================
+   MOBILE 480
+========================================================= */
+
+@media (max-width: 480px) {
+  .controls {
+    margin-bottom: 15px;
+  }
+
+  .counter {
+    font-size: 14px;
+  }
+
+  .track {
+    gap: 10px;
+  }
+
+  .card {
+    flex-basis:
+      calc(
+        100vw - 24px
+      );
+
+    width:
+      calc(
+        100vw - 24px
+      );
+  }
+
+  .content {
+    min-height: 195px;
+
+    padding: 16px;
+  }
+
+  .content h3 {
+    font-size:
+      clamp(
+        25px,
+        8.5vw,
+        32px
+      );
+  }
+
+  .listen {
+    padding-top: 18px;
+  }
+
+  .swipeHint {
+    margin-top: 15px;
+
+    font-size: 7px;
+  }
+}
+
+/* =========================================================
+   MOBILE 390
+========================================================= */
+
+@media (max-width: 390px) {
+  .card {
+    flex-basis:
+      calc(
+        100vw - 20px
+      );
+
+    width:
+      calc(
+        100vw - 20px
+      );
+  }
+
+  .content {
+    min-height: 185px;
+
+    padding: 15px;
+  }
+
+  .meta {
+    font-size: 7px;
+  }
+
+  .category {
+    font-size: 7px;
+  }
+
+  .content h3 {
+    font-size: 25px;
+  }
+
+  .listen {
+    font-size: 8px;
+  }
+}
+
+/* =========================================================
+   MOBILE 360
+========================================================= */
+
+@media (max-width: 360px) {
+  .controls {
+    margin-bottom: 13px;
+  }
+
+  .counter {
+    font-size: 13px;
+  }
+
+  .arrowButton {
+    width: 33px;
+    height: 33px;
+  }
+
+  .track {
+    gap: 8px;
+  }
+
+  .card {
+    flex-basis:
+      calc(
+        100vw - 16px
+      );
+
+    width:
+      calc(
+        100vw - 16px
+      );
+  }
+
+  .content {
+    min-height: 175px;
+
+    padding: 14px;
+  }
+
+  .content h3 {
+    font-size: 23px;
+  }
+
+  .listen {
+    padding-top: 15px;
+
+    font-size: 7.5px;
+  }
+
+  .swipeHint {
+    gap: 6px;
+
+    font-size: 6.5px;
+  }
+
+  .swipeHint svg {
+    width: 11px;
+    height: 11px;
+  }
+}
+
+/* =========================================================
+   MOBILE 320
+========================================================= */
+
+@media (max-width: 320px) {
+  .card {
+    flex-basis:
+      calc(
+        100vw - 12px
+      );
+
+    width:
+      calc(
+        100vw - 12px
+      );
+  }
+
+  .content {
+    min-height: 165px;
+
+    padding: 13px;
+  }
+
+  .content h3 {
+    font-size: 21px;
+  }
+
+  .meta {
+    font-size: 6.5px;
+  }
+
+  .category {
+    font-size: 6.5px;
+  }
+
+  .listen {
+    font-size: 7px;
+  }
+}
+
+/* =========================================================
+   FOCUS
+========================================================= */
+
+.arrowButton:focus-visible,
+.cover:focus-visible,
+.listen:focus-visible {
+  outline: 2px solid #d8b84c;
+
+  outline-offset: 4px;
+}
+
+/* =========================================================
+   REDUCIR MOVIMIENTO
+========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+  .image,
+  .arrowButton,
+  .imageArrow,
+  .listen,
+  .listen svg {
+    transition: none;
+  }
+
+  .cover:hover .image {
+    transform: none;
+  }
+
+  .cover:hover .imageArrow {
+    transform: none;
+  }
+
+  .arrowButton:hover {
+    transform: none;
+  }
+}
