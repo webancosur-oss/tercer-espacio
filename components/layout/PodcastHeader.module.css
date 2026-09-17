@@ -1,71 +1,44 @@
-/* =========================================================
-   HEADER
-========================================================= */
-
 .header {
   position: absolute;
-
   top: 0;
   left: 0;
 
-  z-index: 100;
-
   width: 100%;
+
+  z-index: 100;
 
   color: #ffffff;
 }
 
-
-/* =========================================================
-   CONTAINER
-========================================================= */
-
 .container {
-  width:
-    min(
-      calc(100% - 80px),
-      1320px
-    );
+  width: min(
+    1380px,
+    calc(100% - 80px)
+  );
 
-  min-height: 105px;
+  min-height: 94px;
 
   margin: 0 auto;
 
   display: flex;
-
   align-items: center;
+  justify-content: space-between;
 
   gap: 40px;
 }
-
 
 /* =========================================================
    LOGO
 ========================================================= */
 
 .logo {
-  flex-shrink: 0;
-
-  width: 180px;
-
   display: flex;
-
   align-items: center;
 
-  justify-content: flex-start;
+  flex-shrink: 0;
 
-  transition:
-    opacity 0.3s ease;
+  text-decoration: none;
 }
-
-.logo:hover {
-  opacity: 0.82;
-}
-
-
-/* =========================================================
-   LOGO IMAGE
-========================================================= */
 
 .logoImage {
   display: block;
@@ -73,53 +46,68 @@
   width: 180px;
   height: auto;
 
-  object-fit: contain;
-
-  object-position: left center;
+  max-width: 100%;
 }
-
 
 /* =========================================================
    DESKTOP NAV
 ========================================================= */
 
 .desktopNav {
-  margin-left: auto;
-
   display: flex;
-
   align-items: center;
 
-  gap: 38px;
+  gap: 42px;
+
+  margin-left: auto;
+  margin-right: 35px;
 }
 
 .desktopNav a {
   position: relative;
 
-  color:
-    rgba(
-      255,
-      255,
-      255,
-      0.68
-    );
+  color: rgba(
+    255,
+    255,
+    255,
+    0.82
+  );
 
   font-size: 11px;
-
-  font-weight: 400;
+  font-weight: 600;
 
   line-height: 1;
 
-  white-space: nowrap;
+  letter-spacing: 0.06em;
 
   transition:
-    color 0.3s ease;
+    color 0.25s ease;
+}
+
+.desktopNav a::after {
+  content: '';
+
+  position: absolute;
+
+  left: 0;
+  bottom: -8px;
+
+  width: 0;
+  height: 1px;
+
+  background: #d8b84c;
+
+  transition:
+    width 0.25s ease;
 }
 
 .desktopNav a:hover {
   color: #ffffff;
 }
 
+.desktopNav a:hover::after {
+  width: 100%;
+}
 
 /* =========================================================
    PLATFORMS
@@ -127,129 +115,130 @@
 
 .platforms {
   display: flex;
-
   align-items: center;
 
-  gap: 12px;
+  gap: 11px;
 
   flex-shrink: 0;
 }
 
-
-/* =========================================================
-   LISTEN LABEL
-========================================================= */
-
 .listenLabel {
-  margin-right: 4px;
+  margin-right: 5px;
 
-  color:
-    rgba(
-      255,
-      255,
-      255,
-      0.48
-    );
+  color: rgba(
+    255,
+    255,
+    255,
+    0.58
+  );
 
-  font-size: 10px;
+  font-size: 9px;
+  font-weight: 700;
 
-  font-weight: 400;
+  line-height: 1;
 
-  white-space: nowrap;
+  letter-spacing: 0.12em;
+
+  text-transform: uppercase;
 }
 
-
-/* =========================================================
-   PLATFORM BUTTON
-========================================================= */
-
 .platform {
-  width: 29px;
-  height: 29px;
+  width: 34px;
+  height: 34px;
 
   display: flex;
-
   align-items: center;
   justify-content: center;
 
-  border:
-    1px solid
+  border: 1px solid
     rgba(
       255,
       255,
       255,
-      0.27
+      0.28
     );
 
   border-radius: 50%;
 
-  color:
+  color: #ffffff;
+
+  background:
     rgba(
       255,
       255,
       255,
-      0.82
+      0.04
     );
 
-  transition:
-    background-color 0.3s ease,
-    color 0.3s ease,
-    border-color 0.3s ease,
-    transform 0.3s ease;
-}
-
-.platform span {
-  font-size: 7px;
-
+  font-size: 8px;
   font-weight: 700;
 
-  letter-spacing: 0.02em;
+  letter-spacing: 0.04em;
+
+  transition:
+    background 0.25s ease,
+    border-color 0.25s ease,
+    transform 0.25s ease,
+    color 0.25s ease;
 }
 
 .platform:hover {
-  background: #ffffff;
-
-  border-color: #ffffff;
-
   color: #073f3d;
 
-  transform:
-    translateY(-2px);
+  background: #d8b84c;
+
+  border-color: #d8b84c;
+
+  transform: translateY(-2px);
 }
 
-
 /* =========================================================
-   MENU BUTTON
+   MOBILE BUTTON
 ========================================================= */
 
 .menuButton {
   display: none;
 
-  flex-shrink: 0;
-
-  width: 40px;
-  height: 40px;
-
-  margin-left: auto;
+  width: 42px;
+  height: 42px;
 
   padding: 0;
 
   align-items: center;
   justify-content: center;
-
   flex-direction: column;
 
   gap: 6px;
 
-  background: transparent;
+  border: 1px solid
+    rgba(
+      255,
+      255,
+      255,
+      0.3
+    );
+
+  border-radius: 50%;
+
+  background:
+    rgba(
+      7,
+      63,
+      61,
+      0.2
+    );
 
   cursor: pointer;
+
+  backdrop-filter: blur(8px);
+
+  -webkit-tap-highlight-color: transparent;
 }
 
 .menuButton span {
   display: block;
 
-  width: 21px;
+  width: 15px;
   height: 1px;
 
   background: #ffffff;
@@ -258,11 +247,6 @@
     transform 0.3s ease,
     opacity 0.3s ease;
 }
-
-
-/* =========================================================
-   OPEN MENU ICON
-========================================================= */
 
 .menuOpen span:first-child {
   transform:
@@ -276,7 +260,6 @@
     rotate(-45deg);
 }
 
-
 /* =========================================================
    MOBILE MENU
 ========================================================= */
@@ -285,136 +268,93 @@
   display: none;
 }
 
-
-/* =========================================================
-   1100 PX
-========================================================= */
-
-@media (max-width: 1100px) {
-
-  .container {
-    width:
-      calc(100% - 60px);
-
-    gap: 28px;
-  }
-
-  .desktopNav {
-    gap: 25px;
-  }
-
-  .logo {
-    width: 160px;
-  }
-
-  .logoImage {
-    width: 160px;
-  }
-
-  .listenLabel {
-    display: none;
-  }
-
-}
-
-
 /* =========================================================
    TABLET
 ========================================================= */
 
-@media (max-width: 850px) {
-
+@media (max-width: 1050px) {
   .container {
-    min-height: 90px;
+    width: calc(100% - 56px);
+    min-height: 86px;
+  }
 
-    width:
-      calc(100% - 50px);
+  .logoImage {
+    width: 160px;
+    height: auto;
   }
 
   .desktopNav {
-    gap: 18px;
+    gap: 28px;
+
+    margin-right: 20px;
   }
 
   .desktopNav a {
     font-size: 10px;
   }
 
-  .logo {
-    width: 145px;
-  }
-
-  .logoImage {
-    width: 145px;
-  }
-
-  .platforms {
-    gap: 8px;
+  .listenLabel {
+    display: none;
   }
 
   .platform {
-    width: 27px;
-    height: 27px;
+    width: 32px;
+    height: 32px;
   }
-
 }
-
 
 /* =========================================================
    MOBILE
 ========================================================= */
 
-@media (max-width: 700px) {
-
-  .container {
-    width:
-      calc(100% - 36px);
-
-    min-height: 78px;
+@media (max-width: 760px) {
+  .header {
+    position: absolute;
   }
 
+  .container {
+    width: calc(100% - 36px);
 
-  /* Logo */
+    min-height: 76px;
 
-  .logo {
-    width: 145px;
+    gap: 20px;
   }
 
   .logoImage {
     width: 145px;
+    height: auto;
   }
-
-
-  /* Hide desktop */
 
   .desktopNav,
   .platforms {
     display: none;
   }
 
-
-  /* Mobile button */
-
   .menuButton {
     display: flex;
+
+    margin-left: auto;
   }
-
-
-  /* Mobile menu */
 
   .mobileMenu {
     position: absolute;
 
-    top: 78px;
-
+    top: 76px;
     left: 18px;
     right: 18px;
 
-    display: flex;
+    display: block;
 
-    flex-direction: column;
+    padding: 0;
 
-    padding:
-      0 20px;
+    opacity: 0;
+    visibility: hidden;
+
+    transform:
+      translateY(-10px)
+      scale(0.98);
+
+    transform-origin: top center;
 
     background:
       rgba(
@@ -424,21 +364,26 @@
         0.97
       );
 
-    border:
-      1px solid
+    border: 1px solid
       rgba(
         255,
         255,
         255,
-        0.10
+        0.12
       );
 
-    opacity: 0;
+    box-shadow:
+      0 20px 50px
+        rgba(
+          0,
+          0,
+          0,
+          0.2
+        );
 
-    visibility: hidden;
+    backdrop-filter: blur(16px);
 
-    transform:
-      translateY(-12px);
+    pointer-events: none;
 
     transition:
       opacity 0.3s ease,
@@ -446,108 +391,146 @@
       transform 0.3s ease;
   }
 
-
-  /* Open */
-
   .mobileMenuOpen {
-    padding-block: 8px;
-
     opacity: 1;
-
     visibility: visible;
 
     transform:
-      translateY(0);
+      translateY(0)
+      scale(1);
+
+    pointer-events: auto;
   }
 
+  .mobileNav {
+    display: flex;
+    flex-direction: column;
+  }
 
-  /* Links */
+  .mobileNav a {
+    display: flex;
+    align-items: center;
 
-  .mobileMenu a {
-    padding: 17px 0;
+    min-height: 58px;
 
-    border-bottom:
-      1px solid
+    padding: 0 24px;
+
+    border-bottom: 1px solid
       rgba(
         255,
         255,
         255,
-        0.09
+        0.08
       );
 
-    color:
-      rgba(
-        255,
-        255,
-        255,
-        0.78
-      );
+    color: rgba(
+      255,
+      255,
+      255,
+      0.88
+    );
 
     font-size: 12px;
+    font-weight: 600;
+
+    letter-spacing: 0.04em;
 
     transition:
-      color 0.25s ease;
+      color 0.25s ease,
+      background 0.25s ease;
   }
 
-  .mobileMenu a:hover {
-    color: #ffffff;
-  }
-
-  .mobileMenu a:last-child {
+  .mobileNav a:last-child {
     border-bottom: 0;
   }
 
-}
+  .mobileNav a:hover {
+    color: #d8b84c;
 
+    background:
+      rgba(
+        255,
+        255,
+        255,
+        0.03
+      );
+  }
+
+  .mobileNav .mobileSpotify {
+    min-height: 54px;
+
+    justify-content: center;
+
+    margin: 12px;
+
+    border: 0;
+
+    background: #d8b84c;
+
+    color: #073f3d;
+
+    font-size: 10px;
+
+    text-transform: uppercase;
+
+    letter-spacing: 0.1em;
+  }
+
+  .mobileNav .mobileSpotify:hover {
+    background: #e6ca69;
+
+    color: #073f3d;
+  }
+}
 
 /* =========================================================
    SMALL MOBILE
 ========================================================= */
 
-@media (max-width: 400px) {
-
+@media (max-width: 420px) {
   .container {
-    width:
-      calc(100% - 28px);
+    width: calc(100% - 28px);
 
-    min-height: 70px;
-  }
-
-  .logo {
-    width: 125px;
+    min-height: 68px;
   }
 
   .logoImage {
-    width: 125px;
+    width: 128px;
+    height: auto;
   }
 
   .menuButton {
-    width: 36px;
-    height: 36px;
+    width: 38px;
+    height: 38px;
   }
 
   .mobileMenu {
-    top: 70px;
+    top: 68px;
 
     left: 14px;
     right: 14px;
   }
 
+  .mobileNav a {
+    min-height: 54px;
+
+    padding: 0 20px;
+
+    font-size: 11px;
+  }
 }
 
-
 /* =========================================================
-   VERY SMALL MOBILE
+   ACCESSIBILITY
 ========================================================= */
 
-@media (max-width: 340px) {
-
-  .logo {
-    width: 112px;
+@media (prefers-reduced-motion: reduce) {
+  .desktopNav a,
+  .desktopNav a::after,
+  .platform,
+  .menuButton span,
+  .mobileMenu,
+  .mobileNav a {
+    transition: none;
   }
-
-  .logoImage {
-    width: 112px;
-  }
-
 }

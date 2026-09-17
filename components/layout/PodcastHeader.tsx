@@ -15,13 +15,19 @@ export default function PodcastHeader() {
     setMenuOpen(false);
   };
 
+  const toggleMenu = () => {
+    setMenuOpen((value) => !value);
+  };
+
   return (
-    <header className={styles.header}>
+    <header
+      className={`${styles.header} ${
+        menuOpen ? styles.headerOpen : ''
+      }`}
+    >
       <div className={styles.container}>
 
-        {/* =================================================
-            LOGO
-        ================================================= */}
+        {/* LOGO */}
 
         <a
           href="#inicio"
@@ -39,9 +45,7 @@ export default function PodcastHeader() {
           />
         </a>
 
-        {/* =================================================
-            DESKTOP NAV
-        ================================================= */}
+        {/* NAVEGACIÓN DESKTOP */}
 
         <nav
           className={styles.desktopNav}
@@ -60,18 +64,34 @@ export default function PodcastHeader() {
           </a>
         </nav>
 
-        {/* =================================================
-            MOBILE MENU BUTTON
-        ================================================= */}
+        {/* PLATAFORMA */}
+
+        <div className={styles.platforms}>
+          <span className={styles.listenLabel}>
+            Escúchanos
+          </span>
+
+          <a
+            href={spotifyUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={styles.platform}
+            aria-label="Escuchar Tercer Espacio en Spotify"
+          >
+            <span>SP</span>
+          </a>
+        </div>
+
+        {/* MENU MOBILE */}
 
         <button
           type="button"
           className={`${styles.menuButton} ${
-            menuOpen ? styles.menuOpen : ''
+            menuOpen
+              ? styles.menuOpen
+              : ''
           }`}
-          onClick={() =>
-            setMenuOpen((value) => !value)
-          }
+          onClick={toggleMenu}
           aria-label={
             menuOpen
               ? 'Cerrar menú'
@@ -82,12 +102,9 @@ export default function PodcastHeader() {
           <span />
           <span />
         </button>
-
       </div>
 
-      {/* =================================================
-          MOBILE MENU
-      ================================================= */}
+      {/* MENU MOBILE */}
 
       <div
         className={`${styles.mobileMenu} ${
@@ -96,35 +113,55 @@ export default function PodcastHeader() {
             : ''
         }`}
       >
-
-        <a
-          href="#episodios"
-          onClick={closeMenu}
+        <nav
+          className={styles.mobileNav}
+          aria-label="Navegación móvil"
         >
-          Episodios
-        </a>
+          <a
+            href="#inicio"
+            onClick={closeMenu}
+          >
+            Inicio
+          </a>
 
-        <a
-          href="#podcast"
-          onClick={closeMenu}
-        >
-          Sobre el podcast
-        </a>
+          <a
+            href="#episodios"
+            onClick={closeMenu}
+          >
+            Episodios
+          </a>
 
-        <a
-          href="#temas"
-          onClick={closeMenu}
-        >
-          Temas
-        </a>
+          <a
+            href="#podcast"
+            onClick={closeMenu}
+          >
+            Sobre el podcast
+          </a>
 
-        <a
-          href="#escuchar"
-          onClick={closeMenu}
-        >
-          Escuchar
-        </a>
+          <a
+            href="#temas"
+            onClick={closeMenu}
+          >
+            Temas
+          </a>
 
+          <a
+            href="#escuchar"
+            onClick={closeMenu}
+          >
+            Escuchar
+          </a>
+
+          <a
+            href={spotifyUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={closeMenu}
+            className={styles.mobileSpotify}
+          >
+            Escuchar en Spotify
+          </a>
+        </nav>
       </div>
     </header>
   );
