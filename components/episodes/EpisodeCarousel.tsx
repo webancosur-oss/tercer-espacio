@@ -1,9 +1,12 @@
 'use client';
 
 import {
+  useCallback,
   useEffect,
   useRef,
   useState,
+  type PointerEvent,
+  type WheelEvent,
 } from 'react';
 
 import {
@@ -30,16 +33,11 @@ type Props = {
 };
 
 const GAP = 18;
-const SWIPE_THRESHOLD = 50;
-
-/* =========================================================
-   FECHA
-========================================================= */
+const SWIPE_THRESHOLD = 60;
+const TRANSITION_DURATION = 460;
 
 function formatDate(date: string) {
-  if (!date) {
-    return '';
-  }
+  if (!date) return '';
 
   const parsed = new Date(date);
 
@@ -57,14 +55,8 @@ function formatDate(date: string) {
     .toUpperCase();
 }
 
-/* =========================================================
-   DURACIÓN
-========================================================= */
-
 function formatDuration(duration: string) {
-  if (!duration) {
-    return '';
-  }
+  if (!duration) return '';
 
   const value = duration.trim();
 
@@ -97,10 +89,6 @@ function formatDuration(duration: string) {
 
   return value;
 }
-
-/* =========================================================
-   CATEGORÍA
-========================================================= */
 
 function getCategory(episode: Episode) {
   const text = `${episode.title} ${episode.description}`
@@ -151,31 +139,34 @@ function getCategory(episode: Episode) {
   return 'TERCER ESPACIO';
 }
 
-/* =========================================================
-   COMPONENTE
-========================================================= */
-
 export default function EpisodeCarousel({
   episodes,
 }: Props) {
   const viewportRef =
     useRef<HTMLDivElement>(null);
 
-  const trackRef =
-    useRef<HTMLDivElement>(null);
-
-  /* =======================================================
-     ESTADOS
-  ======================================================= */
+  /*
+   * ========================================================
+   * ESTADOS
+   * ========================================================
+   */
 
   const [visibleCards, setVisibleCards] =
     useState(4);
 
-  const [currentIndex, setCurrentIndex] =
-    useState(episodes.length);
-
   const [cardStep, setCardStep] =
     useState(0);
+
+  /*
+   * Siempre empezamos en la copia central.
+   *
+   * [ COPIA 1 ][ COPIA 2 ][ COPIA 3 ]
+   *                 ↑
+   *              posición
+   */
+
+  const [currentIndex, setCurrentIndex] =
+    useState(episodes.length);
 
   const [isTransitioning, setIsTransitioning] =
     useState(true);
@@ -186,28 +177,64 @@ export default function EpisodeCarousel({
   const [isDragging, setIsDragging] =
     useState(false);
 
-  /* =======================================================
-     REFS SWIPE
-  ======================================================= */
+  /*
+   * ========================================================
+   * POINTER REFS
+   * ========================================================
+   */
 
-  const touchStartX =
+  const pointerId =
     useRef<number | null>(null);
 
-  const touchStartY =
+  const startX =
     useRef<number | null>(null);
 
-  const lastTouchX =
+  const startY =
     useRef<number | null>(null);
 
-  const isHorizontalSwipe =
+  const lastX =
+    useRef<number | null>(null);
+
+  const isHorizontalGesture =
     useRef(false);
 
-  const isResetting =
+  const moved =
     useRef(false);
 
-  /* =======================================================
-     RESPONSIVE
-  ======================================================= */
+  const suppressClick =
+    useRef(false);
+
+  /*
+   * ========================================================
+   * LOOP
+   * ========================================================
+   */
+
+  const isLoopResetting =
+    useRef(false);
+
+  /*
+   * ========================================================
+   * WHEEL
+   * ========================================================
+   */
+
+  const wheelAccumulator =
+    useRef(0);
+
+  const wheelLocked =
+    useRef(false);
+
+  const wheelTimer =
+    useRef<ReturnType<
+      typeof setTimeout
+    > | null>(null);
+
+  /*
+   * ========================================================
+   * RESPONSIVE
+   * ========================================================
+   */
 
   useEffect(() => {
     const updateVisibleCards = () => {
@@ -215,20 +242,13 @@ export default function EpisodeCarousel({
 
       if (width <= 600) {
         setVisibleCards(1);
-        return;
-      }
-
-      if (width <= 900) {
+      } else if (width <= 900) {
         setVisibleCards(2);
-        return;
-      }
-
-      if (width <= 1200) {
+      } else if (width <= 1200) {
         setVisibleCards(3);
-        return;
+      } else {
+        setVisibleCards(4);
       }
-
-      setVisibleCards(4);
     };
 
     updateVisibleCards();
@@ -246,45 +266,42 @@ export default function EpisodeCarousel({
     };
   }, []);
 
-  /* =======================================================
-     MEDIR TARJETA
-  ======================================================= */
+  /*
+   * ========================================================
+   * MEDIR TARJETA
+   * ========================================================
+   */
 
   useEffect(() => {
-    const calculateStep = () => {
+    if (!episodes.length) return;
+
+    const measureCard = () => {
       const viewport =
         viewportRef.current;
 
-      if (!viewport) {
-        return;
-      }
+      if (!viewport) return;
 
-      const firstCard =
+      const card =
         viewport.querySelector(
           `.${styles.card}`,
         ) as HTMLElement | null;
 
-      if (!firstCard) {
-        return;
-      }
+      if (!card) return;
 
       const width =
-        firstCard.getBoundingClientRect()
-          .width;
+        card.getBoundingClientRect().width;
 
-      if (!width) {
-        return;
-      }
+      if (!width) return;
 
-      setCardStep(width + GAP);
+      setCardStep(
+        width + GAP,
+      );
     };
 
-    calculateStep();
+    measureCard();
 
     const observer =
-      new ResizeObserver(
-        calculateStep,
-      );
+      new ResizeObserver(measureCard);
 
     if (viewportRef.current) {
       observer.observe(
@@ -294,7 +311,7 @@ export default function EpisodeCarousel({
 
     window.addEventListener(
       'resize',
-      calculateStep,
+      measureCard,
     );
 
     return () => {
@@ -302,30 +319,35 @@ export default function EpisodeCarousel({
 
       window.removeEventListener(
         'resize',
-        calculateStep,
+        measureCard,
       );
     };
   }, [
-    visibleCards,
     episodes.length,
+    visibleCards,
   ]);
 
-  /* =======================================================
-     REINICIAR POSICIÓN
-  ======================================================= */
+  /*
+   * ========================================================
+   * REPOSICIONAR CUANDO CAMBIA RESPONSIVE
+   * ========================================================
+   */
 
   useEffect(() => {
     if (
-      !cardStep ||
-      !episodes.length
+      !episodes.length ||
+      !cardStep
     ) {
       return;
     }
 
     setIsTransitioning(false);
+
     setCurrentIndex(
       episodes.length,
     );
+
+    setDragX(0);
 
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
@@ -338,9 +360,11 @@ export default function EpisodeCarousel({
     episodes.length,
   ]);
 
-  /* =======================================================
-     EPISODIOS DUPLICADOS
-  ======================================================= */
+  /*
+   * ========================================================
+   * TRES COPIAS
+   * ========================================================
+   */
 
   const loopEpisodes = [
     ...episodes,
@@ -348,9 +372,11 @@ export default function EpisodeCarousel({
     ...episodes,
   ];
 
-  /* =======================================================
-     ÍNDICE REAL
-  ======================================================= */
+  /*
+   * ========================================================
+   * ÍNDICE REAL
+   * ========================================================
+   */
 
   const realIndex =
     ((currentIndex %
@@ -358,14 +384,17 @@ export default function EpisodeCarousel({
       episodes.length) %
     episodes.length;
 
-  /* =======================================================
-     SIGUIENTE
-  ======================================================= */
+  /*
+   * ========================================================
+   * IR AL SIGUIENTE
+   * ========================================================
+   */
 
-  const next = () => {
+  const next = useCallback(() => {
     if (
       !episodes.length ||
-      isResetting.current
+      isLoopResetting.current ||
+      isDragging
     ) {
       return;
     }
@@ -375,16 +404,22 @@ export default function EpisodeCarousel({
     setCurrentIndex(
       (value) => value + 1,
     );
-  };
+  }, [
+    episodes.length,
+    isDragging,
+  ]);
 
-  /* =======================================================
-     ANTERIOR
-  ======================================================= */
+  /*
+   * ========================================================
+   * IR AL ANTERIOR
+   * ========================================================
+   */
 
-  const previous = () => {
+  const previous = useCallback(() => {
     if (
       !episodes.length ||
-      isResetting.current
+      isLoopResetting.current ||
+      isDragging
     ) {
       return;
     }
@@ -394,249 +429,466 @@ export default function EpisodeCarousel({
     setCurrentIndex(
       (value) => value - 1,
     );
-  };
+  }, [
+    episodes.length,
+    isDragging,
+  ]);
 
-  /* =======================================================
-     TOUCH START
-  ======================================================= */
+  /*
+   * ========================================================
+   * POINTER DOWN
+   *
+   * Desktop = mouse
+   * Mobile = touch
+   * ========================================================
+   */
 
-  const handleTouchStart = (
-    event: React.TouchEvent<HTMLDivElement>,
+  const handlePointerDown = (
+    event: PointerEvent<HTMLDivElement>,
   ) => {
     if (
       !episodes.length ||
-      isResetting.current
+      isLoopResetting.current ||
+      event.button !== 0
     ) {
       return;
     }
 
-    const touch =
-      event.touches[0];
+    pointerId.current =
+      event.pointerId;
 
-    if (!touch) {
-      return;
-    }
+    startX.current =
+      event.clientX;
 
-    touchStartX.current =
-      touch.clientX;
+    startY.current =
+      event.clientY;
 
-    touchStartY.current =
-      touch.clientY;
+    lastX.current =
+      event.clientX;
 
-    lastTouchX.current =
-      touch.clientX;
+    isHorizontalGesture.current =
+      false;
 
-    isHorizontalSwipe.current =
+    moved.current = false;
+
+    suppressClick.current =
       false;
 
     setDragX(0);
 
     setIsDragging(true);
 
+    setIsTransitioning(false);
+
     /*
-     * Quitamos la transición durante
-     * el arrastre para que la tarjeta
-     * siga exactamente el dedo.
+     * Importante:
+     * mantiene el pointer capturado aunque
+     * el cursor salga del carrusel.
      */
 
-    setIsTransitioning(false);
+    event.currentTarget.setPointerCapture(
+      event.pointerId,
+    );
   };
 
-  /* =======================================================
-     TOUCH MOVE
-  ======================================================= */
+  /*
+   * ========================================================
+   * POINTER MOVE
+   * ========================================================
+   */
 
-  const handleTouchMove = (
-    event: React.TouchEvent<HTMLDivElement>,
+  const handlePointerMove = (
+    event: PointerEvent<HTMLDivElement>,
   ) => {
     if (
       !isDragging ||
-      touchStartX.current === null ||
-      touchStartY.current === null
+      pointerId.current !==
+        event.pointerId ||
+      startX.current === null ||
+      startY.current === null
     ) {
       return;
     }
 
-    const touch =
-      event.touches[0];
-
-    if (!touch) {
-      return;
-    }
-
     const deltaX =
-      touch.clientX -
-      touchStartX.current;
+      event.clientX -
+      startX.current;
 
     const deltaY =
-      touch.clientY -
-      touchStartY.current;
+      event.clientY -
+      startY.current;
 
     /*
-     * Primero determinamos si el
-     * usuario está haciendo swipe
-     * horizontal o desplazamiento
-     * vertical de página.
+     * Primero determinamos si el gesto
+     * es horizontal o vertical.
      */
 
     if (
-      Math.abs(deltaX) > 8 ||
-      Math.abs(deltaY) > 8
+      !isHorizontalGesture.current &&
+      (Math.abs(deltaX) > 7 ||
+        Math.abs(deltaY) > 7)
     ) {
       if (
         Math.abs(deltaX) >
         Math.abs(deltaY)
       ) {
-        isHorizontalSwipe.current =
+        isHorizontalGesture.current =
+          true;
+
+        moved.current = true;
+
+        suppressClick.current =
           true;
       } else {
-        isHorizontalSwipe.current =
-          false;
+        /*
+         * Era un movimiento vertical.
+         * No interferimos con la página.
+         */
 
         setIsDragging(false);
+
         setDragX(0);
+
+        setIsTransitioning(true);
+
+        resetPointer();
 
         return;
       }
     }
 
     if (
-      !isHorizontalSwipe.current
+      !isHorizontalGesture.current
     ) {
       return;
     }
 
     /*
-     * Aquí sí bloqueamos el scroll
-     * vertical mientras el gesto es
-     * claramente horizontal.
+     * Evitamos que el navegador
+     * intente seleccionar contenido.
      */
 
     event.preventDefault();
 
-    lastTouchX.current =
-      touch.clientX;
+    lastX.current =
+      event.clientX;
 
     /*
-     * Resistencia ligera en los extremos.
-     * Aunque tenemos loop infinito,
-     * evita un arrastre exagerado.
+     * El contenido sigue al cursor.
      */
 
-    const resistance =
-      Math.min(
-        Math.abs(deltaX),
-        120,
-      ) * 0.15;
-
-    const adjustedX =
-      deltaX > 0
-        ? deltaX - resistance
-        : deltaX + resistance;
-
-    setDragX(adjustedX);
+    setDragX(deltaX);
   };
 
-  /* =======================================================
-     TOUCH END
-  ======================================================= */
+  /*
+   * ========================================================
+   * POINTER UP
+   * ========================================================
+   */
 
-  const handleTouchEnd = () => {
+  const handlePointerUp = (
+    event: PointerEvent<HTMLDivElement>,
+  ) => {
     if (
       !isDragging ||
-      touchStartX.current === null ||
-      lastTouchX.current === null
+      pointerId.current !==
+        event.pointerId
     ) {
-      resetTouch();
       return;
     }
 
-    const distance =
-      lastTouchX.current -
-      touchStartX.current;
+    const start =
+      startX.current;
 
-    setIsDragging(false);
-    setDragX(0);
+    const last =
+      lastX.current;
 
     /*
-     * Activamos nuevamente la
-     * transición antes de cambiar
-     * de episodio.
+     * Liberar captura.
      */
+
+    if (
+      event.currentTarget.hasPointerCapture(
+        event.pointerId,
+      )
+    ) {
+      event.currentTarget.releasePointerCapture(
+        event.pointerId,
+      );
+    }
+
+    setIsDragging(false);
+
+    setDragX(0);
 
     setIsTransitioning(true);
 
     if (
-      isHorizontalSwipe.current &&
-      Math.abs(distance) >=
-        SWIPE_THRESHOLD
+      start !== null &&
+      last !== null &&
+      isHorizontalGesture.current
     ) {
-      if (distance < 0) {
-        next();
-      } else {
-        previous();
+      const distance =
+        last - start;
+
+      /*
+       * UN GESTO = UN EPISODIO
+       */
+
+      if (
+        Math.abs(distance) >=
+        SWIPE_THRESHOLD
+      ) {
+        if (distance < 0) {
+          setCurrentIndex(
+            (value) => value + 1,
+          );
+        } else {
+          setCurrentIndex(
+            (value) => value - 1,
+          );
+        }
       }
     }
 
-    resetTouch();
+    resetPointer();
   };
 
-  /* =======================================================
-     TOUCH CANCEL
-  ======================================================= */
+  /*
+   * ========================================================
+   * POINTER CANCEL
+   * ========================================================
+   */
 
-  const handleTouchCancel = () => {
+  const handlePointerCancel = (
+    event: PointerEvent<HTMLDivElement>,
+  ) => {
+    if (
+      event.currentTarget.hasPointerCapture(
+        event.pointerId,
+      )
+    ) {
+      event.currentTarget.releasePointerCapture(
+        event.pointerId,
+      );
+    }
+
     setIsDragging(false);
+
     setDragX(0);
 
     setIsTransitioning(true);
 
-    resetTouch();
+    resetPointer();
   };
 
-  /* =======================================================
-     RESET TOUCH
-  ======================================================= */
+  /*
+   * ========================================================
+   * RESET POINTER
+   * ========================================================
+   */
 
-  const resetTouch = () => {
-    touchStartX.current = null;
-    touchStartY.current = null;
-    lastTouchX.current = null;
+  const resetPointer = () => {
+    pointerId.current = null;
 
-    isHorizontalSwipe.current =
+    startX.current = null;
+
+    startY.current = null;
+
+    lastX.current = null;
+
+    isHorizontalGesture.current =
       false;
   };
 
-  /* =======================================================
-     TRANSITION END
-  ======================================================= */
+  /*
+   * ========================================================
+   * WHEEL / TRACKPAD
+   *
+   * Solo desktop.
+   *
+   * Scroll horizontal con trackpad:
+   * izquierda / derecha.
+   *
+   * También Shift + rueda.
+   * ========================================================
+   */
 
-  const handleTransitionEnd = () => {
-    const total =
-      episodes.length;
-
-    if (!total) {
+  const handleWheel = (
+    event: WheelEvent<HTMLDivElement>,
+  ) => {
+    if (
+      window.innerWidth <= 900 ||
+      !episodes.length ||
+      isLoopResetting.current ||
+      isDragging
+    ) {
       return;
     }
 
+    const isHorizontal =
+      Math.abs(event.deltaX) >
+      Math.abs(event.deltaY);
+
+    const isShiftScroll =
+      event.shiftKey &&
+      Math.abs(event.deltaY) > 0;
+
+    if (
+      !isHorizontal &&
+      !isShiftScroll
+    ) {
+      return;
+    }
+
+    event.preventDefault();
+
+    const delta =
+      isHorizontal
+        ? event.deltaX
+        : event.deltaY;
+
+    wheelAccumulator.current +=
+      delta;
+
+    if (
+      wheelLocked.current
+    ) {
+      return;
+    }
+
+    if (
+      Math.abs(
+        wheelAccumulator.current,
+      ) < 35
+    ) {
+      return;
+    }
+
+    const direction =
+      wheelAccumulator.current > 0
+        ? 1
+        : -1;
+
+    wheelAccumulator.current = 0;
+
+    wheelLocked.current = true;
+
+    if (direction > 0) {
+      setIsTransitioning(true);
+
+      setCurrentIndex(
+        (value) => value + 1,
+      );
+    } else {
+      setIsTransitioning(true);
+
+      setCurrentIndex(
+        (value) => value - 1,
+      );
+    }
+
+    if (wheelTimer.current) {
+      clearTimeout(
+        wheelTimer.current,
+      );
+    }
+
+    wheelTimer.current =
+      setTimeout(() => {
+        wheelLocked.current =
+          false;
+
+        wheelAccumulator.current = 0;
+      }, TRANSITION_DURATION);
+  };
+
+  /*
+   * ========================================================
+   * LIMPIAR WHEEL
+   * ========================================================
+   */
+
+  useEffect(() => {
+    return () => {
+      if (wheelTimer.current) {
+        clearTimeout(
+          wheelTimer.current,
+        );
+      }
+    };
+  }, []);
+
+  /*
+   * ========================================================
+   * EVITAR CLICK DESPUÉS DEL DRAG
+   * ========================================================
+   */
+
+  const handleClickCapture = (
+    event: React.MouseEvent<HTMLDivElement>,
+  ) => {
+    if (suppressClick.current) {
+      event.preventDefault();
+
+      event.stopPropagation();
+
+      suppressClick.current =
+        false;
+    }
+  };
+
+  /*
+   * ========================================================
+   * TRANSITION END
+   *
+   * Aquí se crea el LOOP INFINITO.
+   * ========================================================
+   */
+
+  const handleTransitionEnd = () => {
+    if (
+      !episodes.length ||
+      isDragging
+    ) {
+      return;
+    }
+
+    const total =
+      episodes.length;
+
     /*
-     * LOOP HACIA ADELANTE
+     * Llegamos al final de la
+     * tercera copia.
      */
 
     if (
       currentIndex >=
       total * 2
     ) {
-      isResetting.current =
+      isLoopResetting.current =
         true;
+
+      /*
+       * Quitamos la transición
+       * durante el salto invisible.
+       */
 
       setIsTransitioning(false);
 
+      /*
+       * Volvemos exactamente a
+       * la misma posición dentro
+       * de la copia central.
+       */
+
       setCurrentIndex(total);
+
+      setDragX(0);
 
       requestAnimationFrame(() => {
         requestAnimationFrame(() => {
-          isResetting.current =
+          isLoopResetting.current =
             false;
 
           setIsTransitioning(true);
@@ -647,24 +899,31 @@ export default function EpisodeCarousel({
     }
 
     /*
-     * LOOP HACIA ATRÁS
+     * Llegamos al principio.
      */
 
     if (
       currentIndex < total
     ) {
-      isResetting.current =
+      isLoopResetting.current =
         true;
 
       setIsTransitioning(false);
+
+      /*
+       * Último elemento de la copia
+       * central.
+       */
 
       setCurrentIndex(
         total * 2 - 1,
       );
 
+      setDragX(0);
+
       requestAnimationFrame(() => {
         requestAnimationFrame(() => {
-          isResetting.current =
+          isLoopResetting.current =
             false;
 
           setIsTransitioning(true);
@@ -673,34 +932,40 @@ export default function EpisodeCarousel({
     }
   };
 
-  /* =======================================================
-     NO HAY EPISODIOS
-  ======================================================= */
-
-  if (!episodes.length) {
-    return null;
-  }
-
-  /* =======================================================
-     TRANSFORM
-  ======================================================= */
+  /*
+   * ========================================================
+   * TRANSFORM
+   * ========================================================
+   */
 
   const translateX =
     -(currentIndex * cardStep) +
     dragX;
 
-  /* =======================================================
-     RENDER
-  ======================================================= */
+  /*
+   * ========================================================
+   * RENDER
+   * ========================================================
+   */
+
+  if (!episodes.length) {
+    return null;
+  }
 
   return (
-    <div className={styles.carousel}>
-      {/* =================================================
+    <div
+      className={styles.carousel}
+    >
+      {/* ==================================================
           CONTROLES
-      ================================================= */}
+      ================================================== */}
 
-      <div className={styles.controls}>
-        <div className={styles.counter}>
+      <div
+        className={styles.controls}
+      >
+        <div
+          className={styles.counter}
+        >
           <span>
             {String(
               realIndex + 1,
@@ -722,7 +987,9 @@ export default function EpisodeCarousel({
           </span>
         </div>
 
-        <div className={styles.arrows}>
+        <div
+          className={styles.arrows}
+        >
           <button
             type="button"
             onClick={previous}
@@ -747,9 +1014,9 @@ export default function EpisodeCarousel({
         </div>
       </div>
 
-      {/* =================================================
+      {/* ==================================================
           VIEWPORT
-      ================================================= */}
+      ================================================== */}
 
       <div
         ref={viewportRef}
@@ -758,30 +1025,36 @@ export default function EpisodeCarousel({
             ? styles.dragging
             : ''
         }`}
-        onTouchStart={
-          handleTouchStart
+        onPointerDown={
+          handlePointerDown
         }
-        onTouchMove={
-          handleTouchMove
+        onPointerMove={
+          handlePointerMove
         }
-        onTouchEnd={
-          handleTouchEnd
+        onPointerUp={
+          handlePointerUp
         }
-        onTouchCancel={
-          handleTouchCancel
+        onPointerCancel={
+          handlePointerCancel
+        }
+        onWheel={handleWheel}
+        onClickCapture={
+          handleClickCapture
         }
       >
+        {/* ================================================
+            TRACK
+        ================================================ */}
+
         <div
-          ref={trackRef}
           className={styles.track}
           style={{
-            transform:
-              `translate3d(${translateX}px, 0, 0)`,
+            transform: `translate3d(${translateX}px, 0, 0)`,
 
             transition:
               isTransitioning &&
               !isDragging
-                ? 'transform 520ms cubic-bezier(0.22, 0.61, 0.36, 1)'
+                ? `transform ${TRANSITION_DURATION}ms cubic-bezier(0.22, 0.61, 0.36, 1)`
                 : 'none',
           }}
           onTransitionEnd={
@@ -804,12 +1077,14 @@ export default function EpisodeCarousel({
                     styles.card
                   }
                 >
-                  {/* =========================================
-                      PORTADA
-                  ========================================= */}
+                  {/* ========================================
+                      IMAGEN
+                  ======================================== */}
 
                   <a
-                    href={episode.url}
+                    href={
+                      episode.url
+                    }
                     target="_blank"
                     rel="noopener noreferrer"
                     className={
@@ -830,7 +1105,7 @@ export default function EpisodeCarousel({
                           styles.image
                         }
                         loading={
-                          index < 7
+                          index < 8
                             ? 'eager'
                             : 'lazy'
                         }
@@ -884,9 +1159,9 @@ export default function EpisodeCarousel({
                     </span>
                   </a>
 
-                  {/* =========================================
-                      CONTENIDO
-                  ========================================= */}
+                  {/* ========================================
+                      INFORMACIÓN
+                  ======================================== */}
 
                   <div
                     className={
@@ -951,9 +1226,9 @@ export default function EpisodeCarousel({
         </div>
       </div>
 
-      {/* =================================================
+      {/* ==================================================
           INDICADOR MOBILE
-      ================================================= */}
+      ================================================== */}
 
       <div
         className={
