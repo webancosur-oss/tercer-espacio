@@ -1,0 +1,752 @@
+/* =========================================================
+   SECTION
+========================================================= */
+
+.section {
+  position: relative;
+
+  padding-block:
+    clamp(
+      120px,
+      14vw,
+      180px
+    );
+
+  background: #ffffff;
+
+  color: #14282b;
+}
+
+
+/* =========================================================
+   CONTAINER
+========================================================= */
+
+.container {
+  width:
+    min(
+      calc(100% - 80px),
+      1280px
+    );
+
+  margin: 0 auto;
+}
+
+
+/* =========================================================
+   HEADER
+========================================================= */
+
+.header {
+  display: grid;
+
+  grid-template-columns:
+    minmax(0, 1fr)
+    minmax(260px, 0.38fr);
+
+  align-items: end;
+
+  gap: 80px;
+
+  margin-bottom:
+    clamp(
+      60px,
+      8vw,
+      95px
+    );
+}
+
+
+/* =========================================================
+   EYEBROW
+========================================================= */
+
+.eyebrow {
+  display: block;
+
+  color: #073f3d;
+
+  font-size: 9px;
+
+  font-weight: 700;
+
+  line-height: 1.2;
+
+  letter-spacing: 0.20em;
+}
+
+
+/* =========================================================
+   HEADING
+========================================================= */
+
+.heading h2 {
+  margin: 25px 0 0;
+
+  font-family:
+    Georgia,
+    'Times New Roman',
+    serif;
+
+  font-size:
+    clamp(
+      52px,
+      6vw,
+      80px
+    );
+
+  font-weight: 400;
+
+  line-height: 0.90;
+
+  letter-spacing: -0.065em;
+}
+
+.heading h2 span {
+  color: #073f3d;
+}
+
+
+/* =========================================================
+   HEADER DESCRIPTION
+========================================================= */
+
+.header > p {
+  max-width: 330px;
+
+  margin: 0;
+
+  color: #687779;
+
+  font-size: 11px;
+
+  line-height: 1.85;
+}
+
+
+/* =========================================================
+   GRID
+========================================================= */
+
+.grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(
+      3,
+      minmax(0, 1fr)
+    );
+
+  column-gap: 26px;
+
+  row-gap: 75px;
+}
+
+
+/* =========================================================
+   CARD
+========================================================= */
+
+.card {
+  min-width: 0;
+}
+
+
+/* =========================================================
+   COVER
+========================================================= */
+
+.cover {
+  position: relative;
+
+  display: block;
+
+  width: 100%;
+
+  aspect-ratio: 1 / 1;
+
+  overflow: hidden;
+
+  background: #073f3d;
+
+  text-decoration: none;
+}
+
+
+/* =========================================================
+   IMAGE
+========================================================= */
+
+.cover img {
+  width: 100%;
+  height: 100%;
+
+  display: block;
+
+  object-fit: cover;
+
+  transition:
+    transform 0.7s
+    cubic-bezier(
+      0.22,
+      1,
+      0.36,
+      1
+    );
+}
+
+.card:hover .cover img {
+  transform: scale(1.045);
+}
+
+
+/* =========================================================
+   FALLBACK
+========================================================= */
+
+.coverFallback {
+  width: 100%;
+  height: 100%;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  text-align: center;
+
+  color: #ffffff;
+
+  background:
+    linear-gradient(
+      145deg,
+      #073f3d,
+      #0b5753
+    );
+
+  font-family:
+    Georgia,
+    'Times New Roman',
+    serif;
+
+  font-size: 28px;
+
+  line-height: 0.9;
+
+  letter-spacing: -0.04em;
+}
+
+
+/* =========================================================
+   COVER OVERLAY
+========================================================= */
+
+.coverOverlay {
+  position: absolute;
+
+  inset: 0;
+
+  background:
+    linear-gradient(
+      180deg,
+      rgba(5, 47, 46, 0.18) 0%,
+      transparent 45%,
+      rgba(5, 47, 46, 0.48) 100%
+    );
+
+  pointer-events: none;
+}
+
+
+/* =========================================================
+   COVER LABEL
+========================================================= */
+
+.coverLabel {
+  position: absolute;
+
+  top: 20px;
+
+  left: 20px;
+
+  color:
+    rgba(
+      255,
+      255,
+      255,
+      0.88
+    );
+
+  font-size: 8px;
+
+  font-weight: 700;
+
+  letter-spacing: 0.18em;
+}
+
+
+/* =========================================================
+   COVER PLAY
+========================================================= */
+
+.coverPlay {
+  position: absolute;
+
+  right: 18px;
+
+  bottom: 17px;
+
+  width: 34px;
+  height: 34px;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  border:
+    1px solid
+    rgba(
+      255,
+      255,
+      255,
+      0.45
+    );
+
+  border-radius: 50%;
+
+  color: #ffffff;
+
+  font-size: 13px;
+
+  opacity: 0;
+
+  transform:
+    translateY(5px);
+
+  transition:
+    opacity 0.3s ease,
+    transform 0.3s ease,
+    background-color 0.3s ease;
+}
+
+.card:hover .coverPlay {
+  opacity: 1;
+
+  transform:
+    translateY(0);
+
+  background:
+    rgba(
+      7,
+      63,
+      61,
+      0.75
+    );
+}
+
+
+/* =========================================================
+   CARD CONTENT
+========================================================= */
+
+.cardContent {
+  padding-top: 23px;
+}
+
+
+/* =========================================================
+   META
+========================================================= */
+
+.meta {
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+  gap: 15px;
+
+  margin-bottom: 14px;
+
+  color: #8a9697;
+
+  font-size: 7px;
+
+  font-weight: 700;
+
+  letter-spacing: 0.15em;
+}
+
+
+/* =========================================================
+   CATEGORY
+========================================================= */
+
+.category {
+  display: block;
+
+  margin-bottom: 13px;
+
+  color: #073f3d;
+
+  font-size: 7px;
+
+  font-weight: 700;
+
+  letter-spacing: 0.17em;
+}
+
+
+/* =========================================================
+   TITLE
+========================================================= */
+
+.cardContent h3 {
+  margin: 0;
+
+  color: #14282b;
+
+  font-family:
+    Georgia,
+    'Times New Roman',
+    serif;
+
+  font-size:
+    clamp(
+      25px,
+      2.5vw,
+      34px
+    );
+
+  font-weight: 400;
+
+  line-height: 1.02;
+
+  letter-spacing: -0.045em;
+}
+
+
+/* =========================================================
+   DESCRIPTION
+========================================================= */
+
+.cardContent p {
+  display: -webkit-box;
+
+  margin:
+    17px 0 0;
+
+  overflow: hidden;
+
+  color: #687779;
+
+  font-size: 10px;
+
+  line-height: 1.75;
+
+  -webkit-line-clamp: 3;
+
+  -webkit-box-orient: vertical;
+}
+
+
+/* =========================================================
+   LISTEN
+========================================================= */
+
+.listen {
+  width: fit-content;
+
+  margin-top: 22px;
+
+  display: inline-flex;
+
+  align-items: center;
+
+  gap: 9px;
+
+  color: #073f3d;
+
+  font-size: 9px;
+
+  font-weight: 700;
+
+  text-decoration: none;
+
+  transition:
+    color 0.25s ease,
+    gap 0.25s ease;
+}
+
+.listen span {
+  color: #d8b84c;
+
+  font-size: 14px;
+}
+
+.listen:hover {
+  color: #052f2e;
+
+  gap: 13px;
+}
+
+
+/* =========================================================
+   EMPTY
+========================================================= */
+
+.empty {
+  padding:
+    90px 40px;
+
+  text-align: center;
+
+  background: #f1f4f0;
+}
+
+.empty > span {
+  color: #073f3d;
+
+  font-size: 8px;
+
+  font-weight: 700;
+
+  letter-spacing: 0.20em;
+}
+
+.empty h3 {
+  margin:
+    20px 0 0;
+
+  font-family:
+    Georgia,
+    'Times New Roman',
+    serif;
+
+  font-size: 40px;
+
+  font-weight: 400;
+
+  letter-spacing: -0.04em;
+}
+
+.empty p {
+  max-width: 420px;
+
+  margin:
+    18px auto 0;
+
+  color: #687779;
+
+  font-size: 11px;
+
+  line-height: 1.8;
+}
+
+
+/* =========================================================
+   1100 PX
+========================================================= */
+
+@media (max-width: 1100px) {
+
+  .container {
+    width:
+      calc(100% - 60px);
+  }
+
+  .header {
+    gap: 50px;
+  }
+
+  .grid {
+    column-gap: 20px;
+  }
+
+  .cardContent h3 {
+    font-size: 27px;
+  }
+
+}
+
+
+/* =========================================================
+   TABLET
+========================================================= */
+
+@media (max-width: 850px) {
+
+  .section {
+    padding-block: 110px;
+  }
+
+  .container {
+    width:
+      calc(100% - 50px);
+  }
+
+  .header {
+    grid-template-columns: 1fr;
+
+    gap: 25px;
+
+    margin-bottom: 60px;
+  }
+
+  .header > p {
+    max-width: 520px;
+  }
+
+  .heading h2 {
+    font-size:
+      clamp(
+        46px,
+        8vw,
+        68px
+      );
+  }
+
+  .grid {
+    grid-template-columns:
+      repeat(
+        2,
+        minmax(0, 1fr)
+      );
+
+    row-gap: 60px;
+
+    column-gap: 25px;
+  }
+
+}
+
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 600px) {
+
+  .section {
+    padding-block: 85px;
+  }
+
+  .container {
+    width:
+      calc(100% - 36px);
+  }
+
+  .header {
+    margin-bottom: 48px;
+  }
+
+  .eyebrow {
+    font-size: 8px;
+  }
+
+  .heading h2 {
+    margin-top: 21px;
+
+    font-size: 45px;
+
+    line-height: 0.92;
+  }
+
+  .header > p {
+    font-size: 10px;
+
+    line-height: 1.75;
+  }
+
+  .grid {
+    grid-template-columns: 1fr;
+
+    row-gap: 55px;
+  }
+
+  .cover {
+    aspect-ratio: 1 / 1;
+  }
+
+  .coverLabel {
+    top: 16px;
+    left: 16px;
+
+    font-size: 7px;
+  }
+
+  .coverPlay {
+    right: 14px;
+    bottom: 14px;
+  }
+
+  .cardContent {
+    padding-top: 19px;
+  }
+
+  .cardContent h3 {
+    font-size: 31px;
+  }
+
+  .cardContent p {
+    font-size: 10px;
+  }
+
+  .listen {
+    margin-top: 19px;
+  }
+
+}
+
+
+/* =========================================================
+   SMALL MOBILE
+========================================================= */
+
+@media (max-width: 400px) {
+
+  .section {
+    padding-block: 72px;
+  }
+
+  .container {
+    width:
+      calc(100% - 28px);
+  }
+
+  .heading h2 {
+    font-size: 40px;
+  }
+
+  .cardContent h3 {
+    font-size: 28px;
+  }
+
+  .empty {
+    padding:
+      65px 20px;
+  }
+
+  .empty h3 {
+    font-size: 32px;
+  }
+
+}
+
+
+/* =========================================================
+   REDUCED MOTION
+========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+
+  .cover img,
+  .coverPlay,
+  .listen {
+    transition: none;
+  }
+
+}

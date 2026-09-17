@@ -1,0 +1,1114 @@
+/* =========================================================
+   HERO
+========================================================= */
+
+.hero {
+  position: relative;
+
+  width: 100%;
+  height: 100svh;
+
+  min-height: 780px;
+
+  overflow: hidden;
+
+  background: #073f3d;
+
+  color: #ffffff;
+}
+
+
+/* =========================================================
+   BACKGROUND PATTERN
+========================================================= */
+
+.pattern {
+  position: absolute;
+
+  inset: 0;
+
+  z-index: 0;
+
+  opacity: 0.07;
+
+  background-image:
+    linear-gradient(
+      30deg,
+      transparent 47%,
+      rgba(255, 255, 255, 0.25) 48%,
+      transparent 49%
+    ),
+    linear-gradient(
+      150deg,
+      transparent 47%,
+      rgba(255, 255, 255, 0.20) 48%,
+      transparent 49%
+    );
+
+  background-size: 72px 72px;
+
+  pointer-events: none;
+}
+
+
+/* =========================================================
+   PATTERN SOFT SHAPE
+========================================================= */
+
+.pattern::before {
+  content: '';
+
+  position: absolute;
+
+  inset: 4% 8% 18%;
+
+  border:
+    1px solid
+    rgba(255, 255, 255, 0.035);
+
+  border-radius: 50%;
+
+  box-shadow:
+    0 0 0 80px
+      rgba(255, 255, 255, 0.01),
+
+    0 0 0 160px
+      rgba(255, 255, 255, 0.006);
+}
+
+
+/* =========================================================
+   GLOW
+========================================================= */
+
+.glow {
+  position: absolute;
+
+  z-index: 1;
+
+  top: 43%;
+  left: 50%;
+
+  width: 680px;
+  height: 680px;
+
+  transform:
+    translate(-50%, -50%);
+
+  border-radius: 50%;
+
+  background:
+    radial-gradient(
+      circle,
+      rgba(30, 108, 101, 0.30) 0%,
+      rgba(30, 108, 101, 0.12) 36%,
+      transparent 70%
+    );
+
+  filter: blur(80px);
+
+  pointer-events: none;
+}
+
+
+/* =========================================================
+   CONTENT
+========================================================= */
+
+.content {
+  position: absolute;
+
+  z-index: 10;
+
+  top: 55px;
+  left: 50%;
+
+  width:
+    min(
+      calc(100% - 40px),
+      1120px
+    );
+
+  transform:
+    translateX(-50%);
+
+  display: flex;
+
+  flex-direction: column;
+
+  align-items: center;
+
+  text-align: center;
+}
+
+
+/* =========================================================
+   EYEBROW
+========================================================= */
+
+.eyebrow {
+  display: block;
+
+  color:
+    rgba(
+      255,
+      255,
+      255,
+      0.55
+    );
+
+  font-size: 8px;
+
+  font-weight: 700;
+
+  line-height: 1.2;
+
+  letter-spacing: 0.23em;
+}
+
+
+/* =========================================================
+   MAIN TITLE
+========================================================= */
+
+.content h1 {
+  margin: 23px 0 0;
+
+  max-width: 1050px;
+
+  font-family:
+    Georgia,
+    'Times New Roman',
+    serif;
+
+  font-size:
+    clamp(
+      58px,
+      6.1vw,
+      94px
+    );
+
+  font-weight: 400;
+
+  line-height: 0.91;
+
+  letter-spacing: -0.065em;
+}
+
+
+/* Gold word */
+
+.content h1 span {
+  color: #d8b84c;
+}
+
+
+/* =========================================================
+   DESCRIPTION
+========================================================= */
+
+.description {
+  max-width: 535px;
+
+  margin: 25px 0 0;
+
+  color:
+    rgba(
+      255,
+      255,
+      255,
+      0.57
+    );
+
+  font-size: 11px;
+
+  line-height: 1.75;
+}
+
+
+/* =========================================================
+   SKYLINE
+========================================================= */
+
+.skyline {
+  position: absolute;
+
+  z-index: 5;
+
+  left: 50%;
+
+  /*
+    La ciudad se ubica
+    exactamente antes de
+    la zona blanca.
+  */
+
+  bottom: 24%;
+
+  width: 100vw;
+
+  height: 150px;
+
+  transform:
+    translateX(-50%);
+
+  display: flex;
+
+  align-items: flex-end;
+
+  justify-content: center;
+
+  gap: 5px;
+
+  border-bottom:
+    4px solid
+    rgba(
+      255,
+      255,
+      255,
+      0.78
+    );
+
+  pointer-events: none;
+}
+
+
+/* =========================================================
+   BUILDINGS
+========================================================= */
+
+.building {
+  position: relative;
+
+  width: 6vw;
+
+  max-width: 86px;
+
+  min-width: 30px;
+
+  background:
+    linear-gradient(
+      180deg,
+      #185f5a 0%,
+      #12534f 100%
+    );
+
+  border-top:
+    2px solid
+    rgba(
+      216,
+      184,
+      76,
+      0.92
+    );
+}
+
+
+/* =========================================================
+   BUILDING LINES
+========================================================= */
+
+.building::after {
+  content: '';
+
+  position: absolute;
+
+  top: 14px;
+  right: 8px;
+  bottom: 10px;
+  left: 8px;
+
+  opacity: 0.55;
+
+  background-image:
+    linear-gradient(
+      to bottom,
+      rgba(216, 184, 76, 0.48) 2px,
+      transparent 2px
+    );
+
+  background-size:
+    100% 17px;
+}
+
+
+/* =========================================================
+   BUILDING HEIGHTS
+========================================================= */
+
+.b1 {
+  height: 65px;
+}
+
+.b2 {
+  height: 110px;
+}
+
+.b3 {
+  height: 76px;
+}
+
+.b4 {
+  height: 137px;
+}
+
+.b5 {
+  height: 98px;
+}
+
+.b6 {
+  height: 150px;
+}
+
+.b7 {
+  height: 87px;
+}
+
+.b8 {
+  height: 123px;
+}
+
+.b9 {
+  height: 145px;
+}
+
+.b10 {
+  height: 95px;
+}
+
+.b11 {
+  height: 128px;
+}
+
+.b12 {
+  height: 73px;
+}
+
+.b13 {
+  height: 105px;
+}
+
+.b14 {
+  height: 135px;
+}
+
+.b15 {
+  height: 81px;
+}
+
+.b16 {
+  height: 116px;
+}
+
+
+/* =========================================================
+   WHITE AREA
+========================================================= */
+
+.lightArea {
+  position: absolute;
+
+  z-index: 2;
+
+  left: 0;
+  right: 0;
+  bottom: 0;
+
+  height: 24%;
+
+  background:
+    #f1f4f0;
+
+  pointer-events: none;
+}
+
+
+/* =========================================================
+   PHONE STAGE
+========================================================= */
+
+.phoneStage {
+  position: absolute;
+
+  z-index: 20;
+
+  top: 300px;
+  left: 50%;
+
+  width: 270px;
+  height: 550px;
+
+  transform:
+    translateX(-50%);
+
+  pointer-events: none;
+}
+
+
+/* =========================================================
+   IPHONE BODY
+========================================================= */
+
+.phone {
+  position: relative;
+
+  width: 270px;
+  height: 550px;
+
+  padding: 7px;
+
+  border:
+    2px solid
+    #747d7d;
+
+  border-radius: 43px;
+
+  background:
+    linear-gradient(
+      145deg,
+      #343839 0%,
+      #1b2021 28%,
+      #080b0c 100%
+    );
+
+  box-shadow:
+    0 35px 65px
+      rgba(0, 0, 0, 0.40),
+
+    0 12px 28px
+      rgba(0, 0, 0, 0.24),
+
+    inset 0 0 0 1px
+      rgba(255, 255, 255, 0.12);
+
+  transform:
+    rotate(-0.7deg);
+}
+
+
+/* =========================================================
+   PHONE SCREEN
+========================================================= */
+
+.phoneScreen {
+  position: relative;
+
+  width: 100%;
+  height: 100%;
+
+  overflow: hidden;
+
+  border-radius: 35px;
+
+  background: #111111;
+}
+
+
+/* =========================================================
+   PODCAST IMAGE
+========================================================= */
+
+.screenImage {
+  display: block;
+
+  width: 100%;
+  height: 100%;
+
+  max-width: none;
+
+  object-fit: cover;
+
+  object-position: center;
+}
+
+
+/* =========================================================
+   SCREEN EDGE
+========================================================= */
+
+.phoneScreen::after {
+  content: '';
+
+  position: absolute;
+
+  inset: 0;
+
+  z-index: 5;
+
+  border-radius: inherit;
+
+  box-shadow:
+    inset 0 0 16px
+      rgba(0, 0, 0, 0.20);
+
+  pointer-events: none;
+}
+
+
+/* =========================================================
+   SIDE BUTTONS
+========================================================= */
+
+.volumeOne,
+.volumeTwo,
+.volumeThree,
+.powerButton {
+  position: absolute;
+
+  z-index: 30;
+
+  display: block;
+
+  background:
+    linear-gradient(
+      to right,
+      #858c8d,
+      #363b3c
+    );
+}
+
+
+/* =========================================================
+   VOLUME BUTTONS
+========================================================= */
+
+.volumeOne {
+  left: -5px;
+  top: 108px;
+
+  width: 4px;
+  height: 43px;
+
+  border-radius:
+    4px 0 0 4px;
+}
+
+.volumeTwo {
+  left: -5px;
+  top: 161px;
+
+  width: 4px;
+  height: 43px;
+
+  border-radius:
+    4px 0 0 4px;
+}
+
+.volumeThree {
+  left: -5px;
+  top: 214px;
+
+  width: 4px;
+  height: 43px;
+
+  border-radius:
+    4px 0 0 4px;
+}
+
+
+/* =========================================================
+   POWER BUTTON
+========================================================= */
+
+.powerButton {
+  right: -5px;
+  top: 158px;
+
+  width: 4px;
+  height: 68px;
+
+  border-radius:
+    0 4px 4px 0;
+}
+
+
+/* =========================================================
+   SCROLL
+========================================================= */
+
+.scroll {
+  position: absolute;
+
+  z-index: 30;
+
+  right: 24px;
+  bottom: 23px;
+
+  display: flex;
+
+  flex-direction: column;
+
+  align-items: center;
+
+  gap: 8px;
+
+  color:
+    rgba(
+      20,
+      40,
+      43,
+      0.40
+    );
+
+  font-size: 6px;
+
+  font-weight: 700;
+
+  letter-spacing: 0.17em;
+}
+
+.scroll i {
+  display: block;
+
+  width: 1px;
+  height: 28px;
+
+  background:
+    rgba(
+      20,
+      40,
+      43,
+      0.28
+    );
+}
+
+
+/* =========================================================
+   1100 PX
+========================================================= */
+
+@media (max-width: 1100px) {
+
+  .content h1 {
+    font-size:
+      clamp(
+        54px,
+        7vw,
+        82px
+      );
+  }
+
+  .phoneStage {
+    top: 300px;
+
+    width: 250px;
+    height: 510px;
+  }
+
+  .phone {
+    width: 250px;
+    height: 510px;
+
+    border-radius: 40px;
+  }
+
+  .phoneScreen {
+    border-radius: 32px;
+  }
+
+}
+
+
+/* =========================================================
+   TABLET
+========================================================= */
+
+@media (max-width: 950px) {
+
+  .hero {
+    min-height: 800px;
+    height: 800px;
+  }
+
+  .content {
+    top: 85px;
+
+    width:
+      calc(100% - 50px);
+  }
+
+  .content h1 {
+    margin-top: 20px;
+
+    font-size:
+      clamp(
+        47px,
+        8vw,
+        68px
+      );
+  }
+
+  .description {
+    max-width: 460px;
+
+    font-size: 10px;
+  }
+
+
+  /* Phone */
+
+  .phoneStage {
+    top: 290px;
+
+    width: 220px;
+    height: 445px;
+  }
+
+  .phone {
+    width: 220px;
+    height: 445px;
+
+    padding: 6px;
+
+    border-radius: 35px;
+  }
+
+  .phoneScreen {
+    border-radius: 28px;
+  }
+
+
+  /* Skyline */
+
+  .skyline {
+    bottom: 24%;
+
+    height: 120px;
+
+    gap: 3px;
+  }
+
+  .building {
+    min-width: 23px;
+  }
+
+
+  /* Scroll */
+
+  .scroll {
+    display: none;
+  }
+
+}
+
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 700px) {
+
+  .hero {
+    min-height: 760px;
+    height: 760px;
+  }
+
+
+  /* Background */
+
+  .pattern {
+    background-size: 58px 58px;
+
+    opacity: 0.06;
+  }
+
+
+  /* Glow */
+
+  .glow {
+    top: 40%;
+
+    width: 450px;
+    height: 450px;
+  }
+
+
+  /* Content */
+
+  .content {
+    top: 78px;
+
+    width:
+      calc(100% - 30px);
+  }
+
+  .eyebrow {
+    font-size: 6px;
+
+    letter-spacing: 0.16em;
+  }
+
+  .content h1 {
+    margin-top: 18px;
+
+    font-size:
+      clamp(
+        40px,
+        12.8vw,
+        56px
+      );
+
+    line-height: 0.93;
+  }
+
+  .description {
+    max-width: 320px;
+
+    margin-top: 18px;
+
+    font-size: 9px;
+
+    line-height: 1.7;
+  }
+
+
+  /* =========================================
+     PHONE
+  ========================================= */
+
+  .phoneStage {
+    top: 260px;
+
+    width: 194px;
+    height: 397px;
+  }
+
+  .phone {
+    width: 194px;
+    height: 397px;
+
+    padding: 5px;
+
+    border-radius: 31px;
+  }
+
+  .phoneScreen {
+    border-radius: 25px;
+  }
+
+
+  /* Buttons */
+
+  .volumeOne {
+    left: -4px;
+    top: 78px;
+
+    width: 3px;
+    height: 30px;
+  }
+
+  .volumeTwo {
+    left: -4px;
+    top: 116px;
+
+    width: 3px;
+    height: 30px;
+  }
+
+  .volumeThree {
+    left: -4px;
+    top: 154px;
+
+    width: 3px;
+    height: 30px;
+  }
+
+  .powerButton {
+    right: -4px;
+    top: 116px;
+
+    width: 3px;
+    height: 51px;
+  }
+
+
+  /* =========================================
+     SKYLINE
+  ========================================= */
+
+  .skyline {
+    bottom: 23%;
+
+    height: 94px;
+
+    gap: 2px;
+  }
+
+  .building {
+    min-width: 17px;
+
+    width: 5vw;
+  }
+
+  .building::after {
+    top: 9px;
+
+    right: 5px;
+    left: 5px;
+
+    background-size:
+      100% 12px;
+  }
+
+
+  /* =========================================
+     WHITE AREA
+  ========================================= */
+
+  .lightArea {
+    height: 23%;
+  }
+
+}
+
+
+/* =========================================================
+   SMALL MOBILE
+========================================================= */
+
+@media (max-width: 400px) {
+
+  .hero {
+    min-height: 700px;
+    height: 700px;
+  }
+
+
+  /* Content */
+
+  .content {
+    top: 68px;
+  }
+
+  .eyebrow {
+    font-size: 5.5px;
+  }
+
+  .content h1 {
+    margin-top: 17px;
+
+    font-size: 38px;
+  }
+
+  .description {
+    max-width: 285px;
+
+    margin-top: 16px;
+
+    font-size: 8.5px;
+  }
+
+
+  /* Phone */
+
+  .phoneStage {
+    top: 235px;
+
+    width: 168px;
+    height: 342px;
+  }
+
+  .phone {
+    width: 168px;
+    height: 342px;
+
+    padding: 5px;
+
+    border-radius: 27px;
+  }
+
+  .phoneScreen {
+    border-radius: 22px;
+  }
+
+
+  /* Skyline */
+
+  .skyline {
+    bottom: 22%;
+
+    height: 80px;
+
+    gap: 2px;
+  }
+
+  .building {
+    min-width: 14px;
+  }
+
+  .building::after {
+    display: none;
+  }
+
+}
+
+
+/* =========================================================
+   VERY SMALL MOBILE
+========================================================= */
+
+@media (max-width: 340px) {
+
+  .hero {
+    min-height: 650px;
+    height: 650px;
+  }
+
+  .content {
+    top: 61px;
+  }
+
+  .content h1 {
+    font-size: 34px;
+  }
+
+  .description {
+    max-width: 250px;
+
+    font-size: 8px;
+  }
+
+
+  /* Phone */
+
+  .phoneStage {
+    top: 220px;
+
+    width: 151px;
+    height: 306px;
+  }
+
+  .phone {
+    width: 151px;
+    height: 306px;
+
+    border-radius: 24px;
+  }
+
+  .phoneScreen {
+    border-radius: 19px;
+  }
+
+
+  /* Skyline */
+
+  .skyline {
+    bottom: 21%;
+
+    height: 72px;
+  }
+
+}
+
+
+/* =========================================================
+   REDUCED MOTION
+========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+
+  .phone {
+    transition: none;
+  }
+
+}

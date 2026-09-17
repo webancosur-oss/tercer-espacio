@@ -1,0 +1,73 @@
+:root {
+  --podcast-green: #073f3d;
+  --podcast-green-dark: #052f2e;
+  --podcast-green-light: #0b5753;
+
+  --podcast-accent: #d8b84c;
+  --podcast-accent-light: #e6ca69;
+
+  --podcast-white: #ffffff;
+  --podcast-off-white: #f1f4f0;
+  --podcast-text: #14282b;
+  --podcast-muted: #687779;
+  --podcast-border: rgba(20, 40, 43, 0.14);
+
+  --font-heading:
+    Arial,
+    Helvetica,
+    sans-serif;
+
+  --font-body:
+    Arial,
+    Helvetica,
+    sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+
+  background: var(--podcast-off-white);
+
+  color: var(--podcast-text);
+
+  font-family: var(--font-body);
+
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+button,
+input,
+textarea {
+  font: inherit;
+}
+
+button {
+  border: 0;
+}
+
+a {
+  color: inherit;
+
+  text-decoration: none;
+}
+
+img {
+  max-width: 100%;
+
+  display: block;
+}
+
+::selection {
+  background: var(--podcast-accent);
+
+  color: var(--podcast-green-dark);
+}
