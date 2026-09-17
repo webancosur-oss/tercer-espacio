@@ -23,9 +23,7 @@ type PodcastItem = {
   };
 
   'itunes:duration'?: string;
-
   'itunes:episode'?: string;
-
   'itunes:season'?: string;
 };
 
@@ -40,217 +38,166 @@ type PodcastFeed = {
   items: PodcastItem[];
 };
 
-const RSS_URL =
-  process.env.PODCAST_RSS_URL;
+/* =========================================================
+   RSS DEL PODCAST
+   ========================================================= */
 
-const parser =
-  new Parser<PodcastFeed>({
-    customFields: {
-      item: [
-        [
-          'itunes:image',
-          'itunes:image',
-        ],
-        [
-          'itunes:duration',
-          'itunes:duration',
-        ],
-        [
-          'itunes:episode',
-          'itunes:episode',
-        ],
-        [
-          'itunes:season',
-          'itunes:season',
-        ],
-      ],
-    },
-  });
+const RSS_URL =
+  'https://anchor.fm/s/10899deec/podcast/rss';
+
+const SPOTIFY_URL =
+  'https://open.spotify.com/show/4MlsSTgEjZAUKhd9SsQ5tp';
+
+/* =========================================================
+   PARSER RSS
+   ========================================================= */
+
+const parser = new Parser<PodcastFeed>({
+  customFields: {
+    item: [
+      ['itunes:image', 'itunes:image'],
+      ['itunes:duration', 'itunes:duration'],
+      ['itunes:episode', 'itunes:episode'],
+      ['itunes:season', 'itunes:season'],
+    ],
+  },
+});
 
 /* =========================================================
    LIMPIAR URL
-========================================================= */
+   ========================================================= */
 
 function cleanUrl(
   value?: string | null,
-) {
+): string | null {
   if (!value) {
     return null;
   }
 
-  let url =
-    value.trim();
+  let url = value.trim();
 
   if (!url) {
     return null;
   }
 
-  if (
-    url.startsWith('//')
-  ) {
-    url =
-      `https:${url}`;
+  if (url.startsWith('//')) {
+    url = `https:${url}`;
   }
 
   return url
-    .replace(
-      /&amp;/g,
-      '&',
-    )
-    .replace(
-      /&quot;/g,
-      '"',
-    )
-    .replace(
-      /&#39;/g,
-      "'",
-    );
+    .replace(/&amp;/g, '&')
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'");
 }
 
 /* =========================================================
    EXTRAER IMAGEN DEL XML
-========================================================= */
+   ========================================================= */
 
 function extractPodcastImage(
   xml: string,
-) {
+): string | null {
   /*
-   * itunes:image
+   * iTunes image
    */
+  const itunesImage = xml.match(
+    /<itunes:image\b[^>]*\bhref=["']([^"']+)["'][^>]*\/?>/i,
+  );
 
-  const itunesImage =
-    xml.match(
-      /<itunes:image\b[^>]*\bhref=["']([^"']+)["'][^>]*\/?>/i,
-    );
-
-  if (
-    itunesImage?.[1]
-  ) {
-    return cleanUrl(
-      itunesImage[1],
-    );
+  if (itunesImage?.[1]) {
+    return cleanUrl(itunesImage[1]);
   }
 
   /*
    * RSS image
    */
+  const rssImage = xml.match(
+    /<image\b[^>]*>[\s\S]*?<url>\s*([^<]+?)\s*<\/url>[\s\S]*?<\/image>/i,
+  );
 
-  const rssImage =
-    xml.match(
-      /<image\b[^>]*>[\s\S]*?<url>\s*([^<]+)\s*<\/url>[\s\S]*?<\/image>/i,
-    );
-
-  if (
-    rssImage?.[1]
-  ) {
-    return cleanUrl(
-      rssImage[1],
-    );
+  if (rssImage?.[1]) {
+    return cleanUrl(rssImage[1]);
   }
 
   /*
    * media:content
    */
+  const mediaContent = xml.match(
+    /<media:content\b[^>]*\burl=["']([^"']+)["'][^>]*\/?>/i,
+  );
 
-  const mediaContent =
-    xml.match(
-      /<media:content\b[^>]*\burl=["']([^"']+)["'][^>]*\/?>/i,
-    );
-
-  if (
-    mediaContent?.[1]
-  ) {
-    return cleanUrl(
-      mediaContent[1],
-    );
+  if (mediaContent?.[1]) {
+    return cleanUrl(mediaContent[1]);
   }
 
   return null;
 }
 
 /* =========================================================
-   OBTENER IMAGEN DE EPISODIO
-========================================================= */
+   OBTENER IMÁGENES DE CADA EPISODIO
+   ========================================================= */
 
 function extractEpisodeImages(
   xml: string,
-) {
+): (string | null)[] {
   const itemXml =
     xml.match(
       /<item\b[\s\S]*?<\/item>/gi,
     ) ?? [];
 
-  return itemXml.map(
-    (item) => {
-      const image =
-        item.match(
-          /<itunes:image\b[^>]*\bhref=["']([^"']+)["'][^>]*\/?>/i,
-        );
+  return itemXml.map((item) => {
+    /*
+     * iTunes image
+     */
+    const image = item.match(
+      /<itunes:image\b[^>]*\bhref=["']([^"']+)["'][^>]*\/?>/i,
+    );
 
-      if (
-        image?.[1]
-      ) {
-        return cleanUrl(
-          image[1],
-        );
-      }
+    if (image?.[1]) {
+      return cleanUrl(image[1]);
+    }
 
-      const media =
-        item.match(
-          /<media:content\b[^>]*\burl=["']([^"']+)["'][^>]*\/?>/i,
-        );
+    /*
+     * media:content
+     */
+    const media = item.match(
+      /<media:content\b[^>]*\burl=["']([^"']+)["'][^>]*\/?>/i,
+    );
 
-      if (
-        media?.[1]
-      ) {
-        return cleanUrl(
-          media[1],
-        );
-      }
+    if (media?.[1]) {
+      return cleanUrl(media[1]);
+    }
 
-      const thumbnail =
-        item.match(
-          /<media:thumbnail\b[^>]*\burl=["']([^"']+)["'][^>]*\/?>/i,
-        );
+    /*
+     * media:thumbnail
+     */
+    const thumbnail = item.match(
+      /<media:thumbnail\b[^>]*\burl=["']([^"']+)["'][^>]*\/?>/i,
+    );
 
-      if (
-        thumbnail?.[1]
-      ) {
-        return cleanUrl(
-          thumbnail[1],
-        );
-      }
+    if (thumbnail?.[1]) {
+      return cleanUrl(thumbnail[1]);
+    }
 
-      return null;
-    },
-  );
+    return null;
+  });
 }
 
 /* =========================================================
    OBTENER PODCAST
-========================================================= */
+   ========================================================= */
 
 async function getPodcast() {
-  if (!RSS_URL) {
-    throw new Error(
-      'FALTA PODCAST_RSS_URL EN .env.local',
-    );
-  }
+  const response = await fetch(RSS_URL, {
+    next: {
+      revalidate: 300,
+    },
 
-  const response =
-    await fetch(
-      RSS_URL,
-      {
-        next: {
-          revalidate: 300,
-        },
-
-        headers: {
-          Accept:
-            'application/rss+xml, application/xml, text/xml',
-        },
-      },
-    );
+    headers: {
+      Accept:
+        'application/rss+xml, application/xml, text/xml',
+    },
+  });
 
   if (!response.ok) {
     throw new Error(
@@ -258,8 +205,7 @@ async function getPodcast() {
     );
   }
 
-  const xml =
-    await response.text();
+  const xml = await response.text();
 
   if (!xml) {
     throw new Error(
@@ -267,20 +213,13 @@ async function getPodcast() {
     );
   }
 
-  const feed =
-    await parser.parseString(
-      xml,
-    );
+  const feed = await parser.parseString(xml);
 
   const podcastImage =
-    extractPodcastImage(
-      xml,
-    );
+    extractPodcastImage(xml);
 
   const episodeImages =
-    extractEpisodeImages(
-      xml,
-    );
+    extractEpisodeImages(xml);
 
   return {
     feed,
@@ -291,68 +230,49 @@ async function getPodcast() {
 
 /* =========================================================
    LIMPIAR DESCRIPCIÓN
-========================================================= */
+   ========================================================= */
 
 function cleanDescription(
   description?: string,
-) {
+): string {
   if (!description) {
     return '';
   }
 
   return description
-    .replace(
-      /<[^>]*>/g,
-      '',
-    )
-    .replace(
-      /&nbsp;/g,
-      ' ',
-    )
-    .replace(
-      /&amp;/g,
-      '&',
-    )
-    .replace(
-      /&quot;/g,
-      '"',
-    )
-    .replace(
-      /&#39;/g,
-      "'",
-    )
+    .replace(/<[^>]*>/g, '')
+    .replace(/&nbsp;/g, ' ')
+    .replace(/&amp;/g, '&')
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
     .trim();
 }
 
 /* =========================================================
    PREPARAR EPISODIOS
-========================================================= */
+   ========================================================= */
 
 function prepareEpisodes(
   feed: PodcastFeed,
   podcastImage: string | null,
-  episodeImages: (
-    | string
-    | null
-  )[],
+  episodeImages: (string | null)[],
 ) {
   return feed.items.map(
-    (
-      episode,
-      index,
-    ) => {
+    (episode, index) => {
       const episodeImage =
         episodeImages[index];
 
       const image =
         episodeImage ??
+        episode['itunes:image']?.href ??
         podcastImage ??
+        feed.image?.url ??
         null;
 
       return {
         id:
           episode.guid ??
-          `${episode.title}-${index}`,
+          `${episode.title ?? 'episodio'}-${index}`,
 
         title:
           episode.title ??
@@ -370,24 +290,20 @@ function prepareEpisodes(
           '',
 
         duration:
-          episode[
-            'itunes:duration'
-          ] ?? '',
+          episode['itunes:duration'] ??
+          '',
 
         episodeNumber:
-          episode[
-            'itunes:episode'
-          ] ??
+          episode['itunes:episode'] ??
           String(
-            feed.items.length -
-              index,
+            feed.items.length - index,
           ),
 
         image,
 
         url:
           episode.link ??
-          'https://open.spotify.com/show/4MlsSTgEjZAUKhd9SsQ5tp',
+          SPOTIFY_URL,
       };
     },
   );
@@ -395,15 +311,14 @@ function prepareEpisodes(
 
 /* =========================================================
    COMPONENTE
-========================================================= */
+   ========================================================= */
 
 export default async function EpisodeList() {
   const {
     feed,
     podcastImage,
     episodeImages,
-  } =
-    await getPodcast();
+  } = await getPodcast();
 
   const episodes =
     prepareEpisodes(
@@ -412,41 +327,17 @@ export default async function EpisodeList() {
       episodeImages,
     );
 
-  /*
-   * El podcast actualmente tiene
-   * 5 episodios.
-   *
-   * Si posteriormente agregas más,
-   * el carrusel también funcionará.
-   */
-
   return (
     <section
       id="episodios"
       className={styles.section}
     >
-      <div
-        className={
-          styles.container
-        }
-      >
-
+      <div className={styles.container}>
         {/* HEADER */}
-
-        <div
-          className={
-            styles.header
-          }
-        >
-          <div
-            className={
-              styles.heading
-            }
-          >
+        <div className={styles.header}>
+          <div className={styles.heading}>
             <span
-              className={
-                styles.eyebrow
-              }
+              className={styles.eyebrow}
             >
               EPISODIOS
             </span>
@@ -468,17 +359,14 @@ export default async function EpisodeList() {
           </p>
         </div>
 
+        {/* EPISODIOS */}
         {episodes.length > 0 ? (
           <EpisodeCarousel
-            episodes={
-              episodes
-            }
+            episodes={episodes}
           />
         ) : (
           <div
-            className={
-              styles.empty
-            }
+            className={styles.empty}
           >
             <span>
               TERCER ESPACIO
@@ -494,7 +382,6 @@ export default async function EpisodeList() {
             </p>
           </div>
         )}
-
       </div>
     </section>
   );
