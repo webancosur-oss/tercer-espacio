@@ -1,3 +1,6 @@
+import { FiArrowUpRight } from 'react-icons/fi';
+import { SiSpotify } from 'react-icons/si';
+
 import styles from './FeaturedEpisode.module.css';
 
 const spotifyEmbedUrl =
@@ -9,7 +12,7 @@ const spotifyEpisodeUrl =
 export default function FeaturedEpisode() {
   return (
     <section
-      id="episodios"
+      id="episodio-destacado"
       className={styles.section}
     >
       <div className={styles.container}>
@@ -32,15 +35,16 @@ export default function FeaturedEpisode() {
 
         </div>
 
+
         {/* =================================================
             FEATURED GRID
         ================================================= */}
 
         <div className={styles.featured}>
 
-          {/* ===============================================
+          {/* =================================================
               SPOTIFY PLAYER
-          =============================================== */}
+          ================================================= */}
 
           <div className={styles.playerWrapper}>
 
@@ -65,9 +69,10 @@ export default function FeaturedEpisode() {
 
           </div>
 
-          {/* ===============================================
+
+          {/* =================================================
               EPISODE INFORMATION
-          =============================================== */}
+          ================================================= */}
 
           <div className={styles.info}>
 
@@ -83,9 +88,11 @@ export default function FeaturedEpisode() {
 
             </div>
 
+
             <h3>
               El valor de una propiedad
             </h3>
+
 
             <p>
               Una conversación para entender qué hace
@@ -95,9 +102,10 @@ export default function FeaturedEpisode() {
               transformar su valor.
             </p>
 
-            {/* =============================================
-                ACTIONS
-            ============================================= */}
+
+            {/* =================================================
+                ACTION
+            ================================================= */}
 
             <div className={styles.actions}>
 
@@ -107,15 +115,23 @@ export default function FeaturedEpisode() {
                 rel="noopener noreferrer"
                 className={styles.spotifyButton}
               >
-                <span className={styles.spotifyIcon}>
-                  SP
+
+                <span
+                  className={styles.spotifyIcon}
+                  aria-hidden="true"
+                >
+                  <SiSpotify />
                 </span>
 
-                Escuchar en Spotify
-
-                <span className={styles.arrow}>
-                  ↗
+                <span className={styles.buttonText}>
+                  Escuchar en Spotify
                 </span>
+
+                <FiArrowUpRight
+                  className={styles.arrow}
+                  aria-hidden="true"
+                />
+
               </a>
 
             </div>

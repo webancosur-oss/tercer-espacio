@@ -1,138 +1,471 @@
+import Parser from 'rss-parser';
+import { FiArrowUpRight } from 'react-icons/fi';
+
 import styles from './EpisodeList.module.css';
 
-type SpotifyEpisode = {
-  id: string;
-  name: string;
-  description: string;
-  duration_ms: number;
-  release_date: string;
-  images?: {
-    url: string;
-    width: number;
-    height: number;
-  }[];
-  external_urls?: {
-    spotify?: string;
+type PodcastItem = {
+  title?: string;
+  description?: string;
+  content?: string;
+  pubDate?: string;
+  isoDate?: string;
+  guid?: string;
+  link?: string;
+
+  enclosure?: {
+    url?: string;
+    type?: string;
+    length?: string;
+  };
+
+  'itunes:duration'?: string;
+  'itunes:episode'?: string;
+  'itunes:season'?: string;
+  'itunes:episodeType'?: string;
+
+  'itunes:image'?: {
+    href?: string;
   };
 };
 
-type SpotifyEpisodesResponse = {
-  items: SpotifyEpisode[];
-  next: string | null;
+type PodcastFeed = {
+  title?: string;
+  description?: string;
+
+  image?: {
+    url?: string;
+    title?: string;
+    link?: string;
+  };
+
+  items: PodcastItem[];
 };
 
-const SPOTIFY_SHOW_ID = '4MlsSTgEjZAUKhd9SsQ5tp';
+const RSS_URL =
+  process.env.PODCAST_RSS_URL;
 
-async function getSpotifyToken() {
-  const clientId = process.env.SPOTIFY_CLIENT_ID;
-  const clientSecret = process.env.SPOTIFY_CLIENT_SECRET;
+const SPOTIFY_SHOW_URL =
+  'https://open.spotify.com/show/4MlsSTgEjZAUKhd9SsQ5tp';
 
-  if (!clientId || !clientSecret) {
+const parser =
+  new Parser<PodcastFeed>({
+    customFields: {
+      item: [
+        [
+          'itunes:image',
+          'itunes:image',
+        ],
+        [
+          'itunes:duration',
+          'itunes:duration',
+        ],
+        [
+          'itunes:episode',
+          'itunes:episode',
+        ],
+        [
+          'itunes:season',
+          'itunes:season',
+        ],
+        [
+          'itunes:episodeType',
+          'itunes:episodeType',
+        ],
+      ],
+    },
+  });
+
+/* =========================================================
+   LIMPIAR URL
+========================================================= */
+
+function cleanImageUrl(
+  value?: string | null,
+) {
+  if (!value) {
     return null;
   }
 
-  const credentials = Buffer.from(
-    `${clientId}:${clientSecret}`,
-  ).toString('base64');
+  let url = value.trim();
 
-  const response = await fetch(
-    'https://accounts.spotify.com/api/token',
-    {
-      method: 'POST',
-      headers: {
-        Authorization: `Basic ${credentials}`,
-        'Content-Type':
-          'application/x-www-form-urlencoded',
+  if (!url) {
+    return null;
+  }
+
+  /*
+   * Convierte URLs como:
+   *
+   * //example.com/image.jpg
+   *
+   * en:
+   *
+   * https://example.com/image.jpg
+   */
+
+  if (url.startsWith('//')) {
+    url = `https:${url}`;
+  }
+
+  /*
+   * Decodificar entidades HTML.
+   */
+
+  url = url
+    .replace(/&amp;/g, '&')
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'");
+
+  return url;
+}
+
+/* =========================================================
+   EXTRAER IMAGEN DEL XML
+========================================================= */
+
+function extractImageFromXml(
+  xml: string,
+) {
+  /*
+   * 1. iTunes image
+   *
+   * <itunes:image href="..." />
+   */
+
+  const itunesMatches = [
+    /<itunes:image\b[^>]*\bhref=["']([^"']+)["'][^>]*\/?>/i,
+
+    /<itunes:image\b[^>]*\burl=["']([^"']+)["'][^>]*\/?>/i,
+
+    /<itunes:image\b[^>]*>([^<]+)<\/itunes:image>/i,
+  ];
+
+  for (const regex of itunesMatches) {
+    const match =
+      xml.match(regex);
+
+    if (match?.[1]) {
+      const url =
+        cleanImageUrl(
+          match[1],
+        );
+
+      if (url) {
+        return url;
+      }
+    }
+  }
+
+  /*
+   * 2. media:content
+   */
+
+  const mediaContent =
+    xml.match(
+      /<media:content\b[^>]*\burl=["']([^"']+)["'][^>]*\/?>/i,
+    );
+
+  if (mediaContent?.[1]) {
+    const url =
+      cleanImageUrl(
+        mediaContent[1],
+      );
+
+    if (url) {
+      return url;
+    }
+  }
+
+  /*
+   * 3. media:thumbnail
+   */
+
+  const mediaThumbnail =
+    xml.match(
+      /<media:thumbnail\b[^>]*\burl=["']([^"']+)["'][^>]*\/?>/i,
+    );
+
+  if (mediaThumbnail?.[1]) {
+    const url =
+      cleanImageUrl(
+        mediaThumbnail[1],
+      );
+
+    if (url) {
+      return url;
+    }
+  }
+
+  /*
+   * 4. RSS image tradicional
+   *
+   * <image>
+   *   <url>...</url>
+   * </image>
+   */
+
+  const rssImage =
+    xml.match(
+      /<image\b[^>]*>[\s\S]*?<url>\s*([^<]+)\s*<\/url>[\s\S]*?<\/image>/i,
+    );
+
+  if (rssImage?.[1]) {
+    const url =
+      cleanImageUrl(
+        rssImage[1],
+      );
+
+    if (url) {
+      return url;
+    }
+  }
+
+  return null;
+}
+
+/* =========================================================
+   EXTRAER IMAGEN DE UN ITEM
+========================================================= */
+
+function extractEpisodeImage(
+  itemXml: string,
+) {
+  /*
+   * iTunes
+   */
+
+  const itunes =
+    itemXml.match(
+      /<itunes:image\b[^>]*\bhref=["']([^"']+)["'][^>]*\/?>/i,
+    );
+
+  if (itunes?.[1]) {
+    return cleanImageUrl(
+      itunes[1],
+    );
+  }
+
+  /*
+   * Media content
+   */
+
+  const media =
+    itemXml.match(
+      /<media:content\b[^>]*\burl=["']([^"']+)["'][^>]*\/?>/i,
+    );
+
+  if (media?.[1]) {
+    return cleanImageUrl(
+      media[1],
+    );
+  }
+
+  /*
+   * Media thumbnail
+   */
+
+  const thumbnail =
+    itemXml.match(
+      /<media:thumbnail\b[^>]*\burl=["']([^"']+)["'][^>]*\/?>/i,
+    );
+
+  if (thumbnail?.[1]) {
+    return cleanImageUrl(
+      thumbnail[1],
+    );
+  }
+
+  return null;
+}
+
+/* =========================================================
+   OBTENER RSS
+========================================================= */
+
+async function getPodcastData() {
+  if (!RSS_URL) {
+    throw new Error(
+      'FALTA PODCAST_RSS_URL EN .env.local',
+    );
+  }
+
+  const response =
+    await fetch(
+      RSS_URL,
+      {
+        next: {
+          revalidate: 300,
+        },
+
+        headers: {
+          Accept:
+            'application/rss+xml, application/xml, text/xml',
+        },
       },
-      body: 'grant_type=client_credentials',
-      cache: 'no-store',
-    },
-  );
+    );
 
   if (!response.ok) {
+    throw new Error(
+      `RSS ERROR: ${response.status} ${response.statusText}`,
+    );
+  }
+
+  const xml =
+    await response.text();
+
+  if (!xml) {
+    throw new Error(
+      'El RSS devolvió una respuesta vacía.',
+    );
+  }
+
+  const feed =
+    await parser.parseString(
+      xml,
+    );
+
+  /*
+   * Imagen general del podcast
+   */
+
+  const podcastImage =
+    extractImageFromXml(
+      xml,
+    );
+
+  /*
+   * Extraemos cada <item>
+   * del XML original para buscar
+   * su imagen específica.
+   */
+
+  const itemMatches =
+    xml.match(
+      /<item\b[\s\S]*?<\/item>/gi,
+    ) ?? [];
+
+  const episodeImages =
+    itemMatches.map(
+      (itemXml) =>
+        extractEpisodeImage(
+          itemXml,
+        ),
+    );
+
+  return {
+    feed,
+    podcastImage,
+    episodeImages,
+  };
+}
+
+/* =========================================================
+   DURACIÓN
+========================================================= */
+
+function formatDuration(
+  duration?: string,
+) {
+  if (!duration) {
     return null;
   }
 
-  const data = await response.json();
+  const value =
+    duration.trim();
 
-  return data.access_token as string;
-}
+  if (
+    value.includes(':')
+  ) {
+    const parts =
+      value
+        .split(':')
+        .map(Number);
 
+    if (
+      parts.length === 3
+    ) {
+      const [
+        hours,
+        minutes,
+      ] = parts;
 
-async function getAllEpisodes(): Promise<SpotifyEpisode[]> {
-  const token = await getSpotifyToken();
+      if (hours > 0) {
+        return `${hours} h ${String(
+          minutes,
+        ).padStart(
+          2,
+          '0',
+        )} min`;
+      }
 
-  if (!token) {
-    return [];
-  }
-
-  const episodes: SpotifyEpisode[] = [];
-
-  let nextUrl =
-    `https://api.spotify.com/v1/shows/${SPOTIFY_SHOW_ID}/episodes` +
-    '?limit=50&market=PE';
-
-  while (nextUrl) {
-    const response = await fetch(
-      nextUrl,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        cache: 'no-store',
-      },
-    );
-
-    if (!response.ok) {
-      break;
+      return `${minutes} min`;
     }
 
-    const data =
-      (await response.json()) as SpotifyEpisodesResponse;
+    if (
+      parts.length === 2
+    ) {
+      const [
+        minutes,
+      ] = parts;
 
-    episodes.push(
-      ...data.items,
-    );
-
-    nextUrl = data.next ?? '';
+      return `${minutes} min`;
+    }
   }
 
-  return episodes;
-}
+  const seconds =
+    Number(value);
 
+  if (
+    !Number.isNaN(
+      seconds,
+    )
+  ) {
+    const totalMinutes =
+      Math.floor(
+        seconds / 60,
+      );
 
-function formatDuration(
-  durationMs: number,
-) {
-  const totalMinutes = Math.floor(
-    durationMs / 60000,
-  );
+    const hours =
+      Math.floor(
+        totalMinutes / 60,
+      );
 
-  const hours = Math.floor(
-    totalMinutes / 60,
-  );
+    const minutes =
+      totalMinutes % 60;
 
-  const minutes =
-    totalMinutes % 60;
+    if (hours > 0) {
+      return `${hours} h ${String(
+        minutes,
+      ).padStart(
+        2,
+        '0',
+      )} min`;
+    }
 
-  if (hours > 0) {
-    return `${hours} h ${minutes
-      .toString()
-      .padStart(2, '0')} min`;
+    return `${minutes} min`;
   }
 
-  return `${minutes} min`;
+  return value;
 }
 
+/* =========================================================
+   FECHA
+========================================================= */
 
 function formatDate(
-  date: string,
+  date?: string,
 ) {
-  const parsedDate = new Date(
-    `${date}T12:00:00`,
-  );
+  if (!date) {
+    return '';
+  }
 
-  if (Number.isNaN(parsedDate.getTime())) {
+  const parsedDate =
+    new Date(date);
+
+  if (
+    Number.isNaN(
+      parsedDate.getTime(),
+    )
+  ) {
     return date;
   }
 
@@ -145,29 +478,44 @@ function formatDate(
     },
   )
     .format(parsedDate)
-    .replace('.', '')
+    .replace(
+      '.',
+      '',
+    )
     .toUpperCase();
 }
 
+/* =========================================================
+   CATEGORÍA
+========================================================= */
 
 function getCategory(
-  episode: SpotifyEpisode,
+  episode: PodcastItem,
 ) {
   const text =
-    `${episode.name} ${episode.description}`
-      .toLowerCase();
+    `${episode.title ?? ''} ${
+      episode.description ?? ''
+    }`
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(
+        /[\u0300-\u036f]/g,
+        '',
+      );
 
   if (
-    text.includes('inversión') ||
+    text.includes('inversion') ||
     text.includes('invertir') ||
-    text.includes('propiedad')
+    text.includes('propiedad') ||
+    text.includes('inmobili')
   ) {
     return 'INVERSIÓN';
   }
 
   if (
     text.includes('arquitectura') ||
-    text.includes('diseño')
+    text.includes('arquitecto') ||
+    text.includes('diseno')
   ) {
     return 'ARQUITECTURA';
   }
@@ -175,7 +523,7 @@ function getCategory(
   if (
     text.includes('ciudad') ||
     text.includes('urbano') ||
-    text.includes('urban')
+    text.includes('urbanismo')
   ) {
     return 'CIUDAD';
   }
@@ -183,44 +531,123 @@ function getCategory(
   if (
     text.includes('negocio') ||
     text.includes('empresa') ||
-    text.includes('empresarial')
+    text.includes('empresarial') ||
+    text.includes('emprend')
   ) {
     return 'NEGOCIOS';
+  }
+
+  if (
+    text.includes('construccion') ||
+    text.includes('construir')
+  ) {
+    return 'CONSTRUCCIÓN';
   }
 
   return 'TERCER ESPACIO';
 }
 
+/* =========================================================
+   LIMPIAR DESCRIPCIÓN
+========================================================= */
+
+function cleanDescription(
+  description?: string,
+) {
+  if (!description) {
+    return '';
+  }
+
+  return description
+    .replace(
+      /<[^>]*>/g,
+      '',
+    )
+    .replace(
+      /&nbsp;/g,
+      ' ',
+    )
+    .replace(
+      /&amp;/g,
+      '&',
+    )
+    .replace(
+      /&quot;/g,
+      '"',
+    )
+    .replace(
+      /&#39;/g,
+      "'",
+    )
+    .trim();
+}
+
+/* =========================================================
+   URL EPISODIO
+========================================================= */
+
+function getEpisodeUrl(
+  episode: PodcastItem,
+) {
+  return (
+    episode.link ??
+    SPOTIFY_SHOW_URL
+  );
+}
+
+/* =========================================================
+   COMPONENTE
+========================================================= */
 
 export default async function EpisodeList() {
+  const {
+    feed,
+    podcastImage,
+    episodeImages,
+  } =
+    await getPodcastData();
+
   const episodes =
-    await getAllEpisodes();
+    feed.items ?? [];
 
   return (
     <section
       id="episodios"
       className={styles.section}
     >
-      <div className={styles.container}>
+      <div
+        className={
+          styles.container
+        }
+      >
 
-        {/* =================================================
-            HEADER
-        ================================================= */}
+        {/* HEADER */}
 
-        <div className={styles.header}>
-
-          <div className={styles.heading}>
-
-            <span className={styles.eyebrow}>
+        <div
+          className={
+            styles.header
+          }
+        >
+          <div
+            className={
+              styles.heading
+            }
+          >
+            <span
+              className={
+                styles.eyebrow
+              }
+            >
               EPISODIOS
             </span>
 
             <h2>
               Todas las
               <br />
-              <span>conversaciones.</span>
+              <span>
+                conversaciones.
+              </span>
             </h2>
-
           </div>
 
           <p>
@@ -229,57 +656,109 @@ export default async function EpisodeList() {
             inmobiliaria, arquitectura,
             negocios y ciudad.
           </p>
-
         </div>
 
-
-        {/* =================================================
-            EPISODES
-        ================================================= */}
+        {/* GRID */}
 
         {episodes.length > 0 ? (
-
-          <div className={styles.grid}>
-
+          <div
+            className={
+              styles.grid
+            }
+          >
             {episodes.map(
               (
                 episode,
                 index,
               ) => {
+                const title =
+                  episode.title ??
+                  'Episodio sin título';
+
+                const description =
+                  cleanDescription(
+                    episode.description ??
+                      episode.content,
+                  );
+
+                /*
+                 * Imagen específica del episodio.
+                 *
+                 * Si no existe, usamos
+                 * la portada general.
+                 */
 
                 const image =
-                  episode.images?.[0]?.url;
+                  episodeImages[index] ??
+                  podcastImage;
 
-                const spotifyUrl =
-                  episode.external_urls?.spotify ??
-                  `https://open.spotify.com/episode/${episode.id}`;
+                const episodeUrl =
+                  getEpisodeUrl(
+                    episode,
+                  );
+
+                const duration =
+                  formatDuration(
+                    episode[
+                      'itunes:duration'
+                    ],
+                  );
+
+                const date =
+                  formatDate(
+                    episode.isoDate ??
+                      episode.pubDate,
+                  );
+
+                const episodeNumber =
+                  episode[
+                    'itunes:episode'
+                  ] ??
+                  String(
+                    episodes.length -
+                      index,
+                  ).padStart(
+                    2,
+                    '0',
+                  );
 
                 return (
                   <article
-                    key={episode.id}
-                    className={styles.card}
+                    key={
+                      episode.guid ??
+                      `${title}-${index}`
+                    }
+                    className={
+                      styles.card
+                    }
                   >
 
-                    {/* ======================================
-                        IMAGE
-                    ====================================== */}
+                    {/* COVER */}
 
                     <a
-                      href={spotifyUrl}
+                      href={
+                        episodeUrl
+                      }
                       target="_blank"
                       rel="noopener noreferrer"
-                      className={styles.cover}
+                      className={
+                        styles.cover
+                      }
+                      aria-label={`Escuchar ${title}`}
                     >
-
                       {image ? (
                         <img
                           src={image}
-                          alt=""
+                          alt={title}
+                          className={
+                            styles.coverImage
+                          }
                           loading={
                             index < 3
                               ? 'eager'
                               : 'lazy'
                           }
+                          referrerPolicy="no-referrer"
                         />
                       ) : (
                         <div
@@ -287,9 +766,13 @@ export default async function EpisodeList() {
                             styles.coverFallback
                           }
                         >
-                          TERCER
-                          <br />
-                          ESPACIO
+                          <span>
+                            TERCER
+                          </span>
+
+                          <strong>
+                            ESPACIO
+                          </strong>
                         </div>
                       )}
 
@@ -305,7 +788,9 @@ export default async function EpisodeList() {
                         }
                       >
                         EP.{' '}
-                        {String(index + 1).padStart(
+                        {String(
+                          episodeNumber,
+                        ).padStart(
                           2,
                           '0',
                         )}
@@ -315,43 +800,34 @@ export default async function EpisodeList() {
                         className={
                           styles.coverPlay
                         }
+                        aria-hidden="true"
                       >
-                        ↗
+                        <FiArrowUpRight />
                       </span>
-
                     </a>
 
-
-                    {/* ======================================
-                        CONTENT
-                    ====================================== */}
+                    {/* CONTENT */}
 
                     <div
                       className={
                         styles.cardContent
                       }
                     >
-
                       <div
                         className={
                           styles.meta
                         }
                       >
-
                         <span>
-                          {formatDate(
-                            episode.release_date,
-                          )}
+                          {date}
                         </span>
 
-                        <span>
-                          {formatDuration(
-                            episode.duration_ms,
-                          )}
-                        </span>
-
+                        {duration && (
+                          <span>
+                            {duration}
+                          </span>
+                        )}
                       </div>
-
 
                       <span
                         className={
@@ -363,49 +839,46 @@ export default async function EpisodeList() {
                         )}
                       </span>
 
-
                       <h3>
-                        {episode.name}
+                        {title}
                       </h3>
 
-
-                      {episode.description && (
+                      {description && (
                         <p>
-                          {episode.description}
+                          {
+                            description
+                          }
                         </p>
                       )}
 
-
                       <a
-                        href={spotifyUrl}
+                        href={
+                          episodeUrl
+                        }
                         target="_blank"
                         rel="noopener noreferrer"
                         className={
                           styles.listen
                         }
                       >
-                        Escuchar episodio
-
                         <span>
-                          ↗
+                          Escuchar episodio
                         </span>
+
+                        <FiArrowUpRight
+                          className={
+                            styles.listenIcon
+                          }
+                          aria-hidden="true"
+                        />
                       </a>
-
                     </div>
-
                   </article>
                 );
               },
             )}
-
           </div>
-
         ) : (
-
-          /* ================================================
-             EMPTY / CONFIGURATION
-          ================================================= */
-
           <div
             className={
               styles.empty
@@ -416,18 +889,15 @@ export default async function EpisodeList() {
             </span>
 
             <h3>
-              Los episodios aparecerán aquí.
+              Aún no hay episodios.
             </h3>
 
             <p>
-              Conecta las credenciales de Spotify
-              para cargar automáticamente el
-              contenido del podcast.
+              No encontramos episodios
+              publicados en el feed RSS.
             </p>
           </div>
-
         )}
-
       </div>
     </section>
   );

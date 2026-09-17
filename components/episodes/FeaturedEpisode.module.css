@@ -66,7 +66,8 @@
 ========================================================= */
 
 .intro h2 {
-  margin: 27px 0 0;
+  margin:
+    27px 0 0;
 
   font-family:
     Georgia,
@@ -82,7 +83,7 @@
 
   font-weight: 400;
 
-  line-height: 0.9;
+  line-height: 0.90;
 
   letter-spacing: -0.06em;
 }
@@ -122,7 +123,7 @@
 
 
 /* =========================================================
-   PLAYER WRAPPER
+   PLAYER
 ========================================================= */
 
 .playerWrapper {
@@ -131,19 +132,13 @@
 
 
 /* =========================================================
-   SPOTIFY FRAME
+   PLAYER FRAME
 ========================================================= */
 
 .playerFrame {
   position: relative;
 
   width: 100%;
-
-  /*
-    Ratio del iframe
-    original de Spotify:
-    624 × 351
-  */
 
   aspect-ratio: 624 / 351;
 
@@ -155,7 +150,12 @@
 
   box-shadow:
     0 30px 65px
-      rgba(20, 40, 43, 0.13);
+    rgba(
+      20,
+      40,
+      43,
+      0.13
+    );
 }
 
 
@@ -180,7 +180,7 @@
 
 
 /* =========================================================
-   INFORMATION
+   INFO
 ========================================================= */
 
 .info {
@@ -218,7 +218,7 @@
 
 
 /* =========================================================
-   EPISODE TITLE
+   TITLE
 ========================================================= */
 
 .info h3 {
@@ -271,11 +271,7 @@
 
   display: flex;
 
-  flex-wrap: wrap;
-
   align-items: center;
-
-  gap: 12px;
 }
 
 
@@ -284,7 +280,7 @@
 ========================================================= */
 
 .spotifyButton {
-  min-height: 46px;
+  min-height: 48px;
 
   padding:
     0 17px;
@@ -303,9 +299,7 @@
 
   color: #ffffff;
 
-  font-size: 10px;
-
-  font-weight: 700;
+  text-decoration: none;
 
   transition:
     background-color 0.3s ease,
@@ -320,8 +314,13 @@
     translateY(-2px);
 
   box-shadow:
-    0 12px 25px
-      rgba(7, 63, 61, 0.18);
+    0 12px 28px
+    rgba(
+      7,
+      63,
+      61,
+      0.20
+    );
 }
 
 
@@ -330,87 +329,68 @@
 ========================================================= */
 
 .spotifyIcon {
-  width: 24px;
-  height: 24px;
+  width: 25px;
+  height: 25px;
 
   display: flex;
 
   align-items: center;
   justify-content: center;
 
-  border:
-    1px solid
-    rgba(
-      255,
-      255,
-      255,
-      0.28
-    );
+  color: #1ed760;
 
-  border-radius: 50%;
+  flex-shrink: 0;
+}
 
-  font-size: 6px;
+.spotifyIcon svg {
+  width: 22px;
+  height: 22px;
 
-  font-weight: 800;
+  display: block;
 }
 
 
 /* =========================================================
-   ARROW
+   BUTTON TEXT
 ========================================================= */
 
-.arrow {
-  margin-left: 5px;
-
-  color: #d8b84c;
-
-  font-size: 15px;
-}
-
-
-/* =========================================================
-   SECONDARY BUTTON
-========================================================= */
-
-.secondaryButton {
-  min-height: 46px;
-
-  padding:
-    0 17px;
-
-  display: inline-flex;
-
-  align-items: center;
-
-  justify-content: center;
-
-  border:
-    1px solid
-    rgba(
-      20,
-      40,
-      43,
-      0.18
-    );
-
-  color: #14282b;
-
+.buttonText {
   font-size: 10px;
 
   font-weight: 700;
 
-  transition:
-    background-color 0.3s ease,
-    color 0.3s ease,
-    border-color 0.3s ease;
+  line-height: 1;
+
+  white-space: nowrap;
 }
 
-.secondaryButton:hover {
-  background: #073f3d;
 
-  border-color: #073f3d;
+/* =========================================================
+   ARROW ICON
+========================================================= */
 
-  color: #ffffff;
+.arrow {
+  width: 15px;
+  height: 15px;
+
+  margin-left: 4px;
+
+  color: #d8b84c;
+
+  stroke-width: 1.7;
+
+  flex-shrink: 0;
+
+  transition:
+    transform 0.3s ease;
+}
+
+.spotifyButton:hover .arrow {
+  transform:
+    translate(
+      2px,
+      -2px
+    );
 }
 
 
@@ -561,19 +541,38 @@
   }
 
 
-  /* Actions */
+  /* Action */
 
   .actions {
     margin-top: 28px;
-
-    align-items: stretch;
-
-    flex-direction: column;
   }
 
-  .spotifyButton,
-  .secondaryButton {
-    width: 100%;
+  .spotifyButton {
+    min-height: 46px;
+
+    padding:
+      0 15px;
+
+    gap: 9px;
+  }
+
+  .spotifyIcon {
+    width: 23px;
+    height: 23px;
+  }
+
+  .spotifyIcon svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  .buttonText {
+    font-size: 9px;
+  }
+
+  .arrow {
+    width: 14px;
+    height: 14px;
   }
 
 }
@@ -610,6 +609,17 @@
     font-size: 10px;
   }
 
+  .spotifyButton {
+    min-height: 44px;
+
+    padding:
+      0 13px;
+  }
+
+  .buttonText {
+    font-size: 8px;
+  }
+
 }
 
 
@@ -620,7 +630,7 @@
 @media (prefers-reduced-motion: reduce) {
 
   .spotifyButton,
-  .secondaryButton {
+  .arrow {
     transition: none;
   }
 

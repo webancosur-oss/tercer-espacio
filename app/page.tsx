@@ -4,7 +4,6 @@ import FeaturedEpisode from '@/components/episodes/FeaturedEpisode';
 import PodcastAbout from '@/components/about/PodcastAbout';
 import EpisodeList from '@/components/episodes/EpisodeList';
 import PodcastTopics from '@/components/topics/PodcastTopics';
-import PodcastHosts from '@/components/hosts/PodcastHosts';
 import PodcastCTA from '@/components/newsletter/PodcastCTA';
 import PodcastFooter from '@/components/layout/PodcastFooter';
 
@@ -27,7 +26,7 @@ export default function Home() {
 
         <PodcastTopics />
 
-        <PodcastHosts />
+        {/* <PodcastHosts /> */}
 
         <ListeningPlatforms />
 
